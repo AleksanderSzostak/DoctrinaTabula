@@ -1,16 +1,10 @@
-# React + Vite
+# Fiszki - React
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplikacja React do fiszek z bazą danych...
 
-Currently, two official plugins are available:
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus placerat est lobortis nibh facilisis hendrerit. Proin auctor, eros vel rutrum maximus, diam enim convallis risus, vel eleifend ex nisi nec diam. Maecenas non tempor massa. Curabitur elit nunc, egestas vel bibendum sit amet, interdum egestas sem. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Donec interdum odio dignissim massa faucibus, at tempus massa pellentesque. Phasellus malesuada eu elit tristique tempus. Donec vel facilisis nisi. Donec pellentesque dui vitae nulla vehicula, et consequat turpis sagittis. Nullam pretium varius metus, at pharetra neque elementum sed. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
 
-## React Compiler
+Ut lectus erat, tincidunt vel mollis non, gravida a ipsum. Nunc et nunc quis sem volutpat scelerisque.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
