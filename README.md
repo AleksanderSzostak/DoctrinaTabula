@@ -19,4 +19,3 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus placerat est 
 - **PHP** – na backendzie aplikacji.
 - **MySQL** – jako baza danych.
 
----
