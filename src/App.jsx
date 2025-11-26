@@ -11,7 +11,6 @@ function App() {
     fetch("/.netlify/functions/get-post")
       .then((r) => r.json())
       .then((data) => setPost(data))
-      .catch((err) => console.error(err));
   }, []);
 
   console.log("POST:", post);
