@@ -20,12 +20,3 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus placerat est 
 - **MySQL** – jako baza danych.
 
 ---
- "Donec interdum odio dignissim massa faucibus, at tempus massa pellentesque."
-
-Phasellus malesuada eu elit tristique tempus. Donec vel facilisis nisi. Donec pellentesque dui vitae nulla vehicula, et consequat turpis sagittis.
-
-Nullam pretium varius metus, at pharetra neque elementum sed. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-
-Ut lectus erat, tincidunt vel mollis non, gravida a ipsum. Nunc et nunc quis sem volutpat scelerisque.
-
----
