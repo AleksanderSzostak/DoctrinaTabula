@@ -8,7 +8,7 @@ function App() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    fetch("/.netlify/functions/get-post")
+    fetch("/.netlify/functions/getPost")
       .then((r) => r.json())
       .then((data) => setPost(data))
   }, []);
