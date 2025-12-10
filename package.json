@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@netlify/neon": "^0.1.0",
-    "netlify": "^23.12.3",
     "@tailwindcss/vite": "^4.1.17",
+    "neon": "^2.0.0",
+    "netlify": "^23.12.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "tailwindcss": "^4.1.17"
+    "tailwindcss": "^4.1.17",
+    "vite-react": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

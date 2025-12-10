@@ -5,9 +5,20 @@ function App() {
   const [post, setPost] = useState(null);
 
   useEffect(() => {
-    fetch("/.netlify/functions/getPost")
-      .then((r) => r.json())
-      .then((data) => setPost(data))
+    fetch('/.netlify/functions/insert', {
+  method: 'POST',
+  body: JSON.stringify({
+    table: 'fiszki',
+    slowo: 'test',
+    definicja: 'definicjatest',
+    zdanie: 'zdanietest',
+    groupid: 1
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log('Success:', data))
+  .catch(error => console.error('Error:', error));
+
   }, []);
   console.log("POST:", post);
 
