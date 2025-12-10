@@ -1,10 +1,20 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const increment = () => {
+    const element = document.getElementById('flashcard');
+
+    element.classList.remove('flip');
+    void element.offsetWidth;
+    element.classList.add('flip');
+    
+    Promise.all(
+    element.getAnimations({ subtree: true }).map((animation) => animation.finished),
+    ).then(() => setCount(count + 1));
+    
+  };
 
   return (
     <>
@@ -28,7 +38,7 @@ function App() {
       </div>
       <div id="main" class="h-full w-3/4 flex flex-col flex-auto">
         <div id="fish" class="bg-black h-full basis-3/4 flex flex-auto flex-wrap justify-center content-center">
-          <div id="flashcard" class="bg-[#49e7ec] h-3/5 w-3/5 flex flex-wrap rounded-4xl justify-center content-center hover:rotate-x-180">Tekst</div>
+          <div id="flashcard" class="bg-[#49e7ec] h-3/5 w-3/5 flex flex-wrap rounded-4xl justify-center content-center click:rotate-x-180" onClick={increment}>{count}</div>
         </div>
         <div id="footer" class="bg-[#2b0f54] basis-2/25 w-full flex flex-row justify-center content-center">
           <div class="text-xl text-white justify-center content-center">Stopka</div>
