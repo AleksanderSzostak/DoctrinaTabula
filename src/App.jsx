@@ -12,7 +12,6 @@ function App() {
       .then((r) => r.json())
       .then((data) => setPost(data))
   }, []);
-
   console.log("POST:", post);
 
   return (
