@@ -23,6 +23,7 @@
         "npm:globals@^16.5.0",
         "npm:netlify@^23.12.3",
         "npm:react-dom@^19.2.0",
+        "npm:react-router-dom@^7.10.1",
         "npm:react@^19.2.0",
         "npm:tailwindcss@^4.1.17",
         "npm:vite@^7.2.2"
