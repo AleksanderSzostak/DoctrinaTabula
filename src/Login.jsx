@@ -13,7 +13,12 @@ export default function Login() {
         if (nazwaTrim === "" || hasloTrim === "") {
             alert("Wypełnij oba pola!");
         } else {
-            console.log("Logging in with:", nazwaTrim, hasloTrim);
+            fetch("./login", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json", },
+                body: JSON.stringify({ nazwaTrim, hasloTrim })
+            });
         }
     }
 
