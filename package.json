@@ -12,9 +12,14 @@
   "dependencies": {
     "@netlify/neon": "^0.1.0",
     "@tailwindcss/vite": "^4.1.17",
+    "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "neon": "^2.0.0",
     "netlify": "^23.12.3",
+    "pg": "^8.16.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.10.1",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
