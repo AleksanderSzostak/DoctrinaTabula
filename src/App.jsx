@@ -5,22 +5,24 @@ function App() {
   const [post, setPost] = useState(null);
 
   useEffect(() => {
-    fetch('/.netlify/functions/insert', {
-  method: 'POST',
-  body: JSON.stringify({
-    table: 'fiszki',
-    slowo: 'test',
-    definicja: 'definicjatest',
-    zdanie: 'zdanietest',
-    groupid: 1
+  fetch('http://localhost:8081/fiszka/5')
+  .then(res => res.json())
+  .then(data => {
+   document.getElementById("flashcard").innerText = data[0].slowo;
   })
-})
-  .then(response => response.json())
-  .then(data => console.log('Success:', data))
-  .catch(error => console.error('Error:', error));
+  .catch(err => console.log(err));
+  fetch('http://localhost:8081/fiszki/1')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("explorer").innerText = "";
+    for(let i = 0 ;i<10;i++){
+       document.getElementById("explorer").innerText +=data[i].id;
 
-  }, []);
-  console.log("POST:", post);
+    }
+  
+  })
+  .catch(err => console.log(err));
+  }, []); 
 
   return (
     <>
