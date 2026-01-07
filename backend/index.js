@@ -55,12 +55,13 @@ app.post("/login", (req, res) => {
         message: "Invalid credentials"
       });
   }
-  
+
+    res.json({ haslo: req.body.hasloTrim, nazwa: req.body.nazwaTrim });
   });
 
 
 
-  res.json({ haslo: req.body.hasloTrim, nazwa: req.body.nazwaTrim });
+
 });
 
 app.listen(port, () => {
