@@ -13,11 +13,20 @@ export default function Login() {
         if (nazwaTrim === "" || hasloTrim === "") {
             alert("Wypełnij oba pola!");
         } else {
-            fetch("./login", {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json", },
-                body: JSON.stringify({ nazwaTrim, hasloTrim })
+            fetch("http://localhost:8080/login", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ nazwaTrim, hasloTrim }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
             });
         }
     }
