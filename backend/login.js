@@ -1,81 +1,45 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import pkg from "pg";
- 
-const { Pool } = pkg;
- 
-/**
-* Neon connection
-* DATABASE_URL comes from Netlify environment variables
-*/
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
- 
-export async function handler(event) {
-  // Only allow POST
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+import connection from "./index.js"
+
+export default function login(req, res) {
+  const password = req.body.hasloTrim;
+  const username = req.body.nazwaTrim;
+
+  if (!username || !password) {
+      return res.status(400).send({
+        message: "Missing credentials"
+      });
   }
- 
-  try {
-    const { username, password } = JSON.parse(event.body);
- 
-    if (!username || !password) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Missing credentials" })
-      };
+
+  connection.query("SELECT id, haslo FROM users WHERE nazwa = ?", [username], async (err, results) => {
+    if (err) throw err;
+
+      if (results.length != 1) {
+      return res.status(401).send({
+          message: "Invalid credentials"
+        });
     }
- 
-    // Look up user
-    const result = await pool.query(
-      "SELECT id, haslo FROM users WHERE username = $1",
-      [username]
-    );
- 
-    if (result.rows.length === 0) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ error: "Invalid credentials" })
-      };
-    }
- 
-    const user = result.rows[0];
- 
-    // Verify password
-    const valid = await bcrypt.compare(password, user.password_hash);
- 
+
+    const valid = await bcrypt.compare(password, results[0].haslo);
+
     if (!valid) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ error: "Invalid credentials" })
-      };
+      return res.status(401).send({
+          message: "Invalid credentials"
+        });
     }
- 
-    // ✅ Create JWT (store ONLY userId)
+
     const token = jwt.sign(
-      { userId: user.id },
+      { userId: results[0].id },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
- 
-    return {
-      statusCode: 200,
-      headers: {
-        "Set-Cookie": [
-          `auth=${token}; HttpOnly; Secure; SameSite=Lax; Path=/`
-        ]
-      },
-      body: JSON.stringify({ success: true })
-    };
- 
-  } catch (err) {
-    console.error(err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Server error" })
-    };
-  }
+
+    res.status(200).cookie("access", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    }).json({ success: true });
+  });
 }

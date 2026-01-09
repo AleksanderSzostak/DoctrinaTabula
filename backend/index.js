@@ -1,9 +1,9 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import pkg from "pg";
 import mysql from "mysql";
+import login from "./login.js";
+import register from "./register.js";
 
 const app = express();
 const port = 8080;
@@ -14,6 +14,8 @@ let connection = mysql.createConnection({
   password: "",
   database: "fiszki"
 });
+
+export default connection;
 
 connection.connect((err) => {
   if (err) throw err;
@@ -27,46 +29,26 @@ app.use(cors({
 
 app.use(express.json());
 
-app.post("/login", (req, res) => {
-  const password = req.body.hasloTrim;
-  const username = req.body.nazwaTrim;
+app.post("/login", login);
 
-  if (!username || !password) {
-      return res.status(400).send({
-        message: "Missing credentials"
-      });
-  }
+app.post("/register", register);
 
-  connection.query("SELECT id, haslo FROM users WHERE nazwa = ?", [username], async (err, results) => {
-  if (err) throw err;
-  console.log(results.length);
+app.get("/sprawdzUzytkownika/:nazwa", (req, res) => {
+  connection.query("SELECT id FROM users WHERE nazwa = ?", [req.params.nazwa], async (err, results) => {
+    if (err) throw err;
 
-    if (results.length != 1) {
-    return res.status(401).send({
-        message: "Invalid credentials"
-      });
-  }
-
-  const valid = await bcrypt.compare(password, results[0].haslo);
-  console.log(valid);
-
-  if (!valid) {
-    return res.status(401).send({
-        message: "Invalid credentials"
-      });
-  }
-
-    res.json({ haslo: req.body.hasloTrim, nazwa: req.body.nazwaTrim });
-  });
-
-
-
-
+      if (results.length > 0) {
+        return res.status(200).json({
+          exists: true
+        });
+      } else {
+        return res.status(200).json({
+          exists: false
+        });
+      }
+  })
 });
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
-});
-app.post("/login", (req, res) => {
-  res.json({ message: "TEST" });
 });
