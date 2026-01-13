@@ -14,7 +14,6 @@ export default function login(req, res) {
 
   connection.query("SELECT id, haslo FROM users WHERE nazwa = ?", [username], async (err, results) => {
     if (err) throw err;
-
       if (results.length != 1) {
       return res.status(401).send({
           message: "Invalid credentials"
@@ -32,14 +31,27 @@ export default function login(req, res) {
     const token = jwt.sign(
       { userId: results[0].id },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "15m" }
+    );
+    const refreshToken = jwt.sign(
+      { userId: results[0].id },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
     );
 
-    res.status(200).cookie("access", token, {
+    res.status(200)
+    .cookie("access", token, {
       httpOnly: true,
       secure: false,
       sameSite: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000
+      maxAge: 15 * 60 * 1000
+    })
+    .cookie("refresh", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: true,
+      path: "/refresh",
+      maxAge: 30 * 24 * 60 * 60 * 1000
     }).json({ success: true });
   });
 }

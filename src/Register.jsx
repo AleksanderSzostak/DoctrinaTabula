@@ -61,39 +61,6 @@ export default function Register() {
     }
 
     return (
-        // <>
-        // <form onSubmit={zarejestrujSie}>
-        //     <label htmlFor="nazwa">Nazwa użytkownika:</label>
-        //     <input
-        //         type="text"
-        //         name="nazwa"
-        //         id="nazwa"
-        //         value={nazwaVar}
-        //         onChange={(e) => setNazwaVar(e.target.value)}
-        //     />
-
-        //     <label htmlFor="haslo">Hasło:</label>
-        //     <input
-        //         type="password"
-        //         name="haslo"
-        //         id="haslo"
-        //         value={hasloVar}
-        //         onChange={(e) => setHasloVar(e.target.value)}
-        //     />
-            
-        //     <label htmlFor="haslo">Potwierdź hasło:</label>
-        //     <input
-        //         type="password"
-        //         name="potwierdzHaslo"
-        //         id="potwierdzHaslo"
-        //         value={hasloPotwierdzVar}
-        //         onChange={(e) => setHasloPotwierdzVar(e.target.value)}
-        //     />
-
-        //     <button type="submit">Zarejestruj się</button>
-        //     <p>Masz już konto? <Link to="/login">Zaloguj się</Link></p>
-        //     </form>
-        // </>
         <div className="min-h-screen w-full flex items-center justify-center bg-[#2b0f54]">
             <div className="w-full max-w-md bg-[#ab1f65] rounded-3xl shadow-xl p-8 flex flex-col">
             <form

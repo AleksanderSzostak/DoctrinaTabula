@@ -33,7 +33,8 @@ export default function Login() {
             .then(data => {
                 if (status === 401) {
                     alert("Nieprawidłowa nazwa użytkownika lub hasło");
-                } else if (status == 200) {
+                } else if (status === 200) {
+                    localStorage.setItem("loggedIn", "true");
                     navigate("/");
                 }
             })
@@ -99,30 +100,5 @@ export default function Login() {
 
             </div>
         </div>
-
-        // <>
-        //     <form onSubmit={zalogujSie}>
-        //         <label htmlFor="nazwa">Nazwa użytkownika:</label>
-        //         <input
-        //             type="text"
-        //             name="nazwa"
-        //             id="nazwa"
-        //             value={nazwaVar}
-        //             onChange={(e) => setNazwaVar(e.target.value)}
-        //         />
-
-        //         <label htmlFor="haslo">Hasło:</label>
-        //         <input
-        //             type="password"
-        //             name="haslo"
-        //             id="haslo"
-        //             value={hasloVar}
-        //             onChange={(e) => setHasloVar(e.target.value)}
-        //         />
-
-        //         <button type="submit">Zaloguj się</button>
-        //     </form>
-        //     <p>Nie masz konta? <Link to="/register">Zarejestruj się</Link></p>
-        // </>
     );
 }

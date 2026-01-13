@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import connection from "./index.js"
-import { use } from "react";
 
 export default function register(req, res) {
   const password = req.body.hasloTrim;
