@@ -1,12 +1,61 @@
+/*
+Instrukcja do requestow:
+Mamy jakis
+let status;
+fetch("bla bla bla", {
+  credentials: "include", <--- WAZNE
+  .then(res => {
+      status = res.status;
+      return res.json();
+  })
+  .then(data => {
+      if (status === 401) {
+          fetch("/refresh", {
+            method: "POST",
+            credentials: "include"
+          })
+          .then(res => {
+            if (res.status === 200) {
+              Robimy tego samego fetch co wczesniej tylko tym razem nie musimy wysylac drugiego fetcha do "/refresh" jesli jest blad
+            } else if (res.status === 401) {
+              localStorage.setItem("loggedIn", "false");
+              setLoggedIn("false"); <-- Zakladajac ze funkcja jest w Home() (to odswiezy UI)
+              navigate("/login"); 
+              WAZNE: 
+              Zeby to dzialalo trzeba zaimportowac: import { useNavigate } from "react-router-dom";
+              I na poczatku funkcji tam gdzie useCount i useEffect sie daje dac: const navigate = useNavigate();
+            }
+          });
+      } else if (status === 200) {
+          To co sie dzieje jak sie uda
+      }
+  })
+  .catch(err => {
+      console.error("Fetch error:", err);
+  });
+*/
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Link, Router } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import Login from "./Login";
+import Register from "./Register";
 import './App.css'
 
 
 
 function Home() {
-  const [count, setCount] = useState(0);
+  const [loggedIn, setLoggedIn] = useState(localStorage.getItem("loggedIn"));
+  const navigate = useNavigate();
+
+  async function wyloguj() {
+    await fetch("http://localhost:8080/logout", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    localStorage.setItem("loggedIn", "false");
+    setLoggedIn("false");
+  }
 
   const increment = () => {
     const element = document.getElementById('flashcard');
@@ -28,7 +77,12 @@ function Home() {
           <div class="text-4xl text-white justify-center content-center ml-[2%]">Fiszki</div>
         </div>
         <div id="userMenu" class="bg-[#ff4f69] h-full basis-1/10 flex justify-center content-center">
-          <Link to="/login"><div class="text-3xl text-white justify-center content-center">Zaloguj się</div></Link>
+          {loggedIn == "true" ?
+            <button onClick={wyloguj} className="text-3xl text-white justify-center content-center ml-[2%] cursor-pointer">Wyloguj się</button>
+          : 
+            <Link to="/login"><div class="text-3xl text-white justify-center content-center">Zaloguj się</div></Link>
+          }
+          
         </div>
       </div>
       
@@ -63,6 +117,7 @@ function App() {
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
         </Routes>
     </BrowserRouter>
   );
