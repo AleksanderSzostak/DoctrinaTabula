@@ -105,3 +105,38 @@ function verifyUser(req) {
         return null;
     }
 }
+
+app.get('/zestawy',(req,res)=>{
+  let id = verifyUser(req);
+  if (!id) {
+    return res.status(401).send({
+      message: "Unathorized"
+    })
+  }
+
+  const sql = "SELECT * FROM groups WHERE userId = "+ id;
+
+  db.query(sql,(err, data)=>{
+
+    if(err) return res.json(err);
+
+    return res.json(data);
+
+  })
+
+})
+
+app.get('/fiszki/:id',(req,res)=>{
+
+  const sql = "SELECT id FROM fiszki WHERE groupid = "+ req.params.id;
+
+  db.query(sql,(err, data)=>{
+
+    if(err) return res.json(err);
+
+      return res.json(data);
+
+    })
+
+})
+ 

@@ -41,11 +41,45 @@ import Login from "./Login";
 import Register from "./Register";
 import './App.css'
 
-
-
 function Home() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem("loggedIn"));
   const navigate = useNavigate();
+
+
+  let status;
+  fetch("http://localhost:8080/zestawy", {
+    credentials: "include"})
+    .then(res => {
+      status = res.status;
+      return res.json();
+    })
+    .then(data => {
+      if (status === 401) {
+        fetch("/refresh", {
+          method: "POST",
+          credentials: "include"
+        })
+        .then(res => {
+          if (res.status === 200) {
+            document.getElementById("explorer").innerText = res.json;
+          } 
+          else if (res.status === 401) {
+            localStorage.setItem("loggedIn", "false");
+            setLoggedIn("false");/* <-- Zakladajac ze funkcja jest w Home() (to odswiezy UI)*/
+            navigate("/login"); 
+            /*WAZNE: 
+            Zeby to dzialalo trzeba zaimportowac: import { useNavigate } from "react-router-dom";
+            I na poczatku funkcji tam gdzie useCount i useEffect sie daje dac: const navigate = useNavigate();*/
+          }
+        });
+      }
+      else if (status === 200) {
+        document.getElementById("explorer").innerText = res.json;
+      }
+    })
+  .catch(err => {
+    console.error("Fetch error:", err);
+  });
 
   async function wyloguj() {
     await fetch("http://localhost:8080/logout", {
@@ -89,9 +123,9 @@ function Home() {
       <div id="flexBlock" class="flex flex-row h-23/25 w-full">
         <div id="sidebar" class="h-full w-1/4 flex flex-col flex-auto">
             <div id="titleBar" class="bg-[#ff4f69] basis-1/10 w-full flex justify-center content-center">
-              <div class="text-3xl text-white justify-center content-center">Pliki</div>
+              <div class="text-3xl text-white justify-center content-center" >Pliki</div>
             </div>
-            <div id="explorer" class="bg-[#ab1f65] basis-9/10 w-full flex flex-auto">
+          <div id="explorer" class="bg-[#ab1f65] basis-9/10 w-full flex flex-auto">
 
           </div>
       </div>
