@@ -1,6 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import connection from "./index.js"
+import connection from "./index.js" 
+
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export default function login(req, res) {
   const password = req.body.hasloTrim;
@@ -28,6 +31,8 @@ export default function login(req, res) {
         });
     }
 
+    console.log(results[0].id);
+    console.log(process.env.JWT_SECRET)
     const token = jwt.sign(
       { userId: results[0].id },
       process.env.JWT_SECRET,

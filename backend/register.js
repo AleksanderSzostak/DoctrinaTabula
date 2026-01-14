@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+ import bcrypt from "bcrypt";
 import connection from "./index.js"
 
 export default function register(req, res) {
