@@ -3,14 +3,14 @@ Instrukcja do requestow:
 Mamy jakis
 let status;
 fetch("bla bla bla", {
-  credentials: "include", <--- WAZNE
+  credentials: "include"}) <--- WAZNE
   .then(res => {
       status = res.status;
       return res.json();
   })
   .then(data => {
       if (status === 401) {
-          fetch("/refresh", {
+          fetch("http://localhost:8080/refresh", {
             method: "POST",
             credentials: "include"
           })
@@ -47,7 +47,7 @@ function Home() {
 
 
   let status;
-  fetch("http://localhost:8080/zestawy", {
+  useEffect(() => {fetch("http://localhost:8080/zestawy", {
     credentials: "include"})
     .then(res => {
       status = res.status;
@@ -55,13 +55,22 @@ function Home() {
     })
     .then(data => {
       if (status === 401) {
-        fetch("/refresh", {
+        console.log("Refreshing token")
+        fetch("http://localhost:8080/refresh", {
           method: "POST",
           credentials: "include"
         })
         .then(res => {
           if (res.status === 200) {
-            document.getElementById("explorer").innerText = res.json;
+            fetch("http://localhost:8080/zestawy", {
+              credentials: "include"})
+              .then(res => {
+                status = res.status;
+                return res.json();
+              })
+              .then(data => {
+                document.getElementById("explorer").innerText = data[0].nazwa;
+              });
           } 
           else if (res.status === 401) {
             localStorage.setItem("loggedIn", "false");
@@ -74,12 +83,13 @@ function Home() {
         });
       }
       else if (status === 200) {
-        document.getElementById("explorer").innerText = res.json;
+        document.getElementById("explorer").innerText = data[0].nazwa;
       }
     })
   .catch(err => {
     console.error("Fetch error:", err);
-  });
+  })}, []);
+  
 
   async function wyloguj() {
     await fetch("http://localhost:8080/logout", {

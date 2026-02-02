@@ -15,12 +15,14 @@ app.post("/sciezka", (req, res) => {
 */
 
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
 import mysql from "mysql";
 import login from "./login.js";
 import refresh from "./refresh.js";
 import register from "./register.js";
+import jwt from "jsonwebtoken";
 
 const app = express();
 const port = 8080;
@@ -45,6 +47,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/login", login);
 
@@ -92,18 +95,20 @@ app.listen(port, () => {
 
 
 function verifyUser(req) {
-  const token = req.cookies.refresh;
+  const token = req.cookies.access;
 
-    if (!token) {
-        return null;
-    }
+  if (!token) {
+    console.log("Wrong cookie")
+    return null;
+  }
 
-    try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
-        return payload.userId;
-    } catch {
-        return null;
-    }
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    return payload.userId;
+  } catch (error) {
+    console.log("Token verification failed. " + error)
+    return null;
+  }
 }
 
 app.get('/zestawy',(req,res)=>{
@@ -116,11 +121,11 @@ app.get('/zestawy',(req,res)=>{
 
   const sql = "SELECT * FROM groups WHERE userId = "+ id;
 
-  db.query(sql,(err, data)=>{
+  connection.query(sql,(err, data)=>{
 
     if(err) return res.json(err);
 
-    return res.json(data);
+    res.json(data);
 
   })
 
@@ -130,7 +135,7 @@ app.get('/fiszki/:id',(req,res)=>{
 
   const sql = "SELECT id FROM fiszki WHERE groupid = "+ req.params.id;
 
-  db.query(sql,(err, data)=>{
+  connection.query(sql,(err, data)=>{
 
     if(err) return res.json(err);
 
