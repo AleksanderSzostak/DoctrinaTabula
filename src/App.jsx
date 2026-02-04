@@ -69,7 +69,8 @@ function Home() {
                 return res.json();
               })
               .then(data => {
-                document.getElementById("explorer").innerText = data[0].nazwa;
+                console.log(data);
+                //document.getElementById("explorer").innerText = data[0].nazwa;
               });
           } 
           else if (res.status === 401) {
@@ -83,7 +84,12 @@ function Home() {
         });
       }
       else if (status === 200) {
-        document.getElementById("explorer").innerText = data[0].nazwa;
+        console.log(data);
+        document.getElementById("explorer").innerText = "";
+        for(const i of data){
+          document.getElementById("explorer").innerHTML += i.nazwa+"<br>";
+        }
+        
       }
     })
   .catch(err => {

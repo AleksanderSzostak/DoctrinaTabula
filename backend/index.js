@@ -16,7 +16,7 @@ app.post("/sciezka", (req, res) => {
 
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import express from "express";
+import express, { text } from "express";
 import cors from "cors";
 import mysql from "mysql";
 import login from "./login.js";
@@ -111,37 +111,63 @@ function verifyUser(req) {
   }
 }
 
-app.get('/zestawy',(req,res)=>{
+app.get('/zestawy', (req, res) => {
+ 
+  function queryAsync(sql) {
+    return new Promise((resolve, reject) => {
+      connection.query(sql, (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    });
+  }
+ 
+  const id = verifyUser(req);
+  if (!id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+ 
+  const sqlgroup = `SELECT * FROM groups WHERE userid = ${id}`;
+ 
+  connection.query(sqlgroup, async (err, groups) => {
+    if (err) return res.status(500).json(err);
+ 
+    try {
+      const result = [];
+      for (const group of groups) {
+        const sql = `SELECT * FROM fiszki WHERE groupid = ${group.id}`;
+ 
+        result.push({
+          nazwa: group.nazwa,
+          fiszki: queryAsync(sql)
+        });
+      }
+      const resolved = await Promise.all(
+        result.map(async g => ({
+          nazwa: g.nazwa,
+          fiszki: await g.fiszki
+        }))
+      );
+ 
+      res.json(resolved);
+ 
+    } catch (e) {
+      res.status(500).json(e);
+    }
+  });
+});
+
+app.get('/fiszki',(req,res)=>{
   let id = verifyUser(req);
   if (!id) {
     return res.status(401).send({
       message: "Unathorized"
     })
   }
-
-  const sql = "SELECT * FROM groups WHERE userId = "+ id;
-
-  connection.query(sql,(err, data)=>{
-
-    if(err) return res.json(err);
-
-    res.json(data);
-
-  })
-
-})
-
-app.get('/fiszki/:id',(req,res)=>{
-
-  const sql = "SELECT id FROM fiszki WHERE groupid = "+ req.params.id;
-
-  connection.query(sql,(err, data)=>{
-
-    if(err) return res.json(err);
-
-      return res.json(data);
-
+    const sql = "SELECT fiszki.* FROM fiszki INNER JOIN groups on fiszki.groupid = groups.id WHERE groups.userid = "+id+";";
+    db.query(sql,(err, data)=>{
+        if(err) return res.json(err);
+        return res.json(data);
     })
-
-})
+  });
  
