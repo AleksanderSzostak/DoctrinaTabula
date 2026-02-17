@@ -39,6 +39,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
+import Edycja from "./Edycja";
 import './App.css'
 
 function Home() {
@@ -69,12 +70,16 @@ function Home() {
                 return res.json();
               })
               .then(data => {
+                localStorage.setItem("fiszki", JSON.stringify(data));
                 console.log(data);
-                //document.getElementById("explorer").innerText = data[0].nazwa;
+                document.getElementById("explorer").innerText = "";
+                for(const i of data){
+                  document.getElementById("explorer").innerHTML += i.nazwa+"<br>";
+                }
               });
           } 
           else if (res.status === 401) {
-            localStorage.setItem("loggedIn", "false");
+            localStorage.clear();
             setLoggedIn("false");/* <-- Zakladajac ze funkcja jest w Home() (to odswiezy UI)*/
             navigate("/login"); 
             /*WAZNE: 
@@ -84,12 +89,12 @@ function Home() {
         });
       }
       else if (status === 200) {
+        localStorage.setItem("fiszki", JSON.stringify(data));
         console.log(data);
         document.getElementById("explorer").innerText = "";
         for(const i of data){
           document.getElementById("explorer").innerHTML += i.nazwa+"<br>";
         }
-        
       }
     })
   .catch(err => {
@@ -103,7 +108,7 @@ function Home() {
       credentials: "include"
     });
 
-    localStorage.setItem("loggedIn", "false");
+    localStorage.clear();
     setLoggedIn("false");
   }
 
@@ -122,35 +127,40 @@ function Home() {
 
   return (
     <>
-      <div id="header" class="h-2/25 w-full flex flex-row flex-auto">
-        <div id="menu" class="bg-[#2b0f54] h-full basis-1/2 flex flex-auto">
-          <div class="text-4xl text-white justify-center content-center ml-[2%]">Fiszki</div>
+      <div id="header" className="h-2/25 w-full flex flex-row flex-auto">
+        <div id="menu" className="bg-[#2b0f54] h-full basis-1/2 flex flex-auto">
+          <div className="text-4xl text-white justify-center content-center ml-[2%]">Fiszki</div>
         </div>
-        <div id="userMenu" class="bg-[#ff4f69] h-full basis-1/10 flex justify-center content-center">
+        <Link to={loggedIn == "true" ? "/edytuj" : "/login"} className="basis-1/10">
+          <div id="editMenu" className="bg-[#ff4f69] hover:bg-[#ff8093] h-full flex justify-center items-center">
+            <div className="text-3xl text-white justify-center">Test</div>
+          </div>
+        </Link>
+        <div id="userMenu" className="bg-[#ff4f69] hover:bg-[#ff8093] h-full basis-1/10 flex justify-center items-center">
           {loggedIn == "true" ?
-            <button onClick={wyloguj} className="text-3xl text-white justify-center content-center ml-[2%] cursor-pointer">Wyloguj się</button>
+            <button onClick={wyloguj} className="text-3xl text-white justify-center ml-[2%] cursor-pointer w-full h-full">Wyloguj się</button>
           : 
-            <Link to="/login"><div class="text-3xl text-white justify-center content-center">Zaloguj się</div></Link>
+            <Link to="/login" className="text-3xl text-white w-full h-full flex justify-center items-center">Zaloguj się</Link>
           }
           
         </div>
       </div>
       
-      <div id="flexBlock" class="flex flex-row h-23/25 w-full">
-        <div id="sidebar" class="h-full w-1/4 flex flex-col flex-auto">
-            <div id="titleBar" class="bg-[#ff4f69] basis-1/10 w-full flex justify-center content-center">
-              <div class="text-3xl text-white justify-center content-center" >Pliki</div>
+      <div id="flexBlock" className="flex flex-row h-23/25 w-full">
+        <div id="sidebar" className="h-full w-1/4 flex flex-col flex-auto">
+            <div id="titleBar" className="bg-[#ff4f69] basis-1/10 w-full flex justify-center content-center">
+              <div className="text-3xl text-white justify-center content-center" >Pliki</div>
             </div>
-          <div id="explorer" class="bg-[#ab1f65] basis-9/10 w-full flex flex-auto">
+          <div id="explorer" className="bg-[#ab1f65] basis-9/10 w-full flex flex-auto">
 
           </div>
       </div>
-      <div id="main" class="h-full w-3/4 flex flex-col flex-auto">
-        <div id="fish" class="bg-black h-full basis-3/4 flex flex-auto flex-wrap justify-center content-center">
-          <div id="flashcard" class="bg-[#49e7ec] h-3/5 w-3/5 flex flex-wrap rounded-4xl justify-center content-center click:rotate-x-180" onClick={increment}>{word}</div>
+      <div id="main" className="h-full w-3/4 flex flex-col flex-auto">
+        <div id="fish" className="bg-black h-full basis-3/4 flex flex-auto flex-wrap justify-center content-center">
+          <div id="flashcard" className="bg-[#49e7ec] h-3/5 w-3/5 flex flex-wrap rounded-4xl justify-center content-center click:rotate-x-180" onClick={increment}>{word}</div>
         </div>
-        <div id="footer" class="bg-[#2b0f54] basis-2/25 w-full flex flex-row justify-center content-center">
-          <div class="text-xl text-white justify-center content-center">Stopka</div>
+        <div id="footer" className="bg-[#2b0f54] basis-2/25 w-full flex flex-row justify-center content-center">
+          <div className="text-xl text-white justify-center content-center">Stopka</div>
         </div>
       </div>
     </div>
@@ -168,6 +178,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/edytuj" element={<Edycja />} />
         </Routes>
     </BrowserRouter>
   );

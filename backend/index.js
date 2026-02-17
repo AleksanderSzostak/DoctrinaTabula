@@ -139,12 +139,14 @@ app.get('/zestawy', (req, res) => {
  
         result.push({
           nazwa: group.nazwa,
+          id: group.id,
           fiszki: queryAsync(sql)
         });
       }
       const resolved = await Promise.all(
         result.map(async g => ({
           nazwa: g.nazwa,
+          id: g.id,
           fiszki: await g.fiszki
         }))
       );
