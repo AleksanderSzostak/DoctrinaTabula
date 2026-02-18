@@ -137,8 +137,8 @@ function Home() {
     } else {
       const def = fiszki[currentGroup].fiszki[currentFiszka];
       setWord(
-        `Definicja: ${def.definicja || "??"}\n` +
-        `przykładowe zdanie: ${def.zdanie || "-"}`
+        `Definicja: ${def.definicja || "??"}` +
+        `\n\nPrzykładowe zdanie: ${def.zdanie || "-"}`
       );
     }
     setFlipped(!flipped);
@@ -195,6 +195,7 @@ function Home() {
       onMouseEnter={() => setIsWrongHovered(true)}
         onMouseLeave={() => setIsWrongHovered(false)}
         style={{
+          height: '100%',
           padding: '20px 40px',
           borderTopRightRadius: '8px',
           borderBottomRightRadius: '8px',
@@ -218,6 +219,7 @@ function Home() {
       <div id="correct" onMouseEnter={() => setIsCorrectHovered(true)}
         onMouseLeave={() => setIsCorrectHovered(false)}
         style={{
+          height: '100%',
           padding: '20px 40px',
           borderTopLeftRadius: '8px',
           borderBottomLeftRadius: '8px',
@@ -243,10 +245,7 @@ function Home() {
 
 
         <div id="fish" class="bg-black h-full basis-3/4 flex flex-auto flex-wrap justify-center content-center">
-          <div id="flashcard" class="bg-[#49e7ec] h-3/5 w-3/5 flex flex-wrap rounded-4xl justify-center content-center click:rotate-x-180" onClick={increment}>{word}</div>
-        </div>
-        <div id="footer" class="bg-[#2b0f54] basis-2/25 w-full flex flex-row justify-center content-center">
-          <div class="text-xl text-white justify-center content-center">Stopka</div>
+          <div id="flashcard" class="p-10 font-semibold text-4xl bg-[#49e7ec] h-3/5 w-3/5 flex flex-wrap rounded-4xl justify-center content-center click:rotate-x-180" onClick={increment}>{word}</div>
         </div>
       </div>
     </div>
