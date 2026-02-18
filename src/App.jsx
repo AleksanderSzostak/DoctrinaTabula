@@ -71,7 +71,6 @@ function Home() {
               })
               .then(data => {
                 localStorage.setItem("fiszki", JSON.stringify(data));
-                console.log(data);
                 document.getElementById("explorer").innerText = "";
                 for(const i of data){
                   document.getElementById("explorer").innerHTML += i.nazwa+"<br>";
@@ -90,7 +89,6 @@ function Home() {
       }
       else if (status === 200) {
         localStorage.setItem("fiszki", JSON.stringify(data));
-        console.log(data);
         document.getElementById("explorer").innerText = "";
         for(const i of data){
           document.getElementById("explorer").innerHTML += i.nazwa+"<br>";

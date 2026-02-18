@@ -16,25 +16,24 @@ app.post("/sciezka", (req, res) => {
 
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import express, { text } from "express";
+import express from "express";
 import cors from "cors";
 import mysql from "mysql";
 import login from "./login.js";
 import refresh from "./refresh.js";
 import register from "./register.js";
 import jwt from "jsonwebtoken";
+import zapiszFiszki from "./zapiszFiszki.js";
 
 const app = express();
 const port = 8080;
 
-let connection = mysql.createConnection({
+export let connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
   database: "fiszki"
 });
-
-export default connection;
 
 connection.connect((err) => {
   if (err) throw err;
@@ -93,8 +92,9 @@ app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
+app.post('/zapiszFiszki', zapiszFiszki)
 
-function verifyUser(req) {
+export function verifyUser(req) {
   const token = req.cookies.access;
 
   if (!token) {
@@ -171,5 +171,5 @@ app.get('/fiszki',(req,res)=>{
         if(err) return res.json(err);
         return res.json(data);
     })
-  });
+});
  

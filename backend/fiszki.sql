@@ -47,11 +47,11 @@ INSERT INTO `fiszki` (`id`, `slowo`, `definicja`, `zdanie`, `groupid`) VALUES
 (3, 'Atom', 'Najmniejsza jednostka budująca materię.', 'Wszystko wokół nas składa się z atomów.', 1),
 (4, 'Ekosystem', 'Zespół organizmów i ich środowisko.', 'Las jest złożonym ekosystemem.', 1),
 (5, 'Demokracja', 'Ustrój, w którym władzę sprawuje naród.', 'W demokracji obywatele wybierają swoich przedstawicieli.', 1),
-(6, 'Ewolucja', 'Proces stopniowych zmian gatunków.', 'Ewolucja tłumaczy różnorodność życia na Ziemi.', 1),
-(7, 'Układ słoneczny', 'Zbiór planet krążących wokół Słońca.', 'Ziemia jest częścią Układu Słonecznego.', 1),
-(8, 'Internet', 'Globalna sieć łącząca komputery na całym świecie.', 'Korzystamy z Internetu każdego dnia.', 1),
-(9, 'Obieg wody', 'Ciągły cykl krążenia wody na Ziemi.', 'Deszcz jest elementem obiegu wody.', 1),
-(10, 'Energia', 'Zdolność do wykonania pracy lub wywołania zmiany.', 'Prąd elektryczny jest formą energii.', 1);
+(6, 'Ewolucja', 'Proces stopniowych zmian gatunków.', 'Ewolucja tłumaczy różnorodność życia na Ziemi.', 2),
+(7, 'Układ słoneczny', 'Zbiór planet krążących wokół Słońca.', 'Ziemia jest częścią Układu Słonecznego.', 2),
+(8, 'Internet', 'Globalna sieć łącząca komputery na całym świecie.', 'Korzystamy z Internetu każdego dnia.', 2),
+(9, 'Obieg wody', 'Ciągły cykl krążenia wody na Ziemi.', 'Deszcz jest elementem obiegu wody.', 2),
+(10, 'Energia', 'Zdolność do wykonania pracy lub wywołania zmiany.', 'Prąd elektryczny jest formą energii.', 2);
 
 -- --------------------------------------------------------
 
@@ -71,7 +71,8 @@ CREATE TABLE `groups` (
 --
 
 INSERT INTO `groups` (`id`, `nazwa`, `userid`, `private`) VALUES
-(1, 'Pytania testowe', 1, 'false');
+(1, 'Pytania testowe', 1, 'false'),
+(2, 'TEST', 1, 'false');
 
 -- --------------------------------------------------------
 
@@ -129,6 +130,9 @@ ALTER TABLE `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(1) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+ALTER TABLE `groups`
+  MODIFY `id` int(1) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables

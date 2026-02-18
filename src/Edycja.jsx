@@ -1,12 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from "react";
 
-const fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []};
+let fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []};
 let increment = 1;
+let increment2 = 1;
+let odrzucZmianyLicznik = 0;
+let refreshPage = 0;
 
 
 export default function Edycja() {
-    const [fiszki, setFiszki] = useState(null);
+    const [localGrupy, setLocalGrupy] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -17,7 +20,8 @@ export default function Edycja() {
 
         function checkIfLoaded() {
             if (localStorage.getItem("fiszki")) {
-                setFiszki(JSON.parse(localStorage.getItem("fiszki")));
+                console.log(JSON.parse(localStorage.getItem("fiszki")))
+                setLocalGrupy(JSON.parse(localStorage.getItem("fiszki")));
                 setLoading(false);
                 return true;
             }
@@ -36,7 +40,7 @@ export default function Edycja() {
         }, 200);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [refreshPage]);
 
     async function wyloguj() {
         await fetch("http://localhost:8080/logout", {
@@ -47,6 +51,61 @@ export default function Edycja() {
         localStorage.clear();
         navigate("/");
     }
+
+    function dodajGrupe() {
+        fiszkiDoZmiany.dodaneGrupy.push({ tempId: increment2, nazwa: "" });
+        setLocalGrupy([...localGrupy, {fiszki: [], nazwa: "", tempId: increment2++}]);
+    }
+
+    function odrzucZmiany() {
+        fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []};
+        setLocalGrupy(JSON.parse(localStorage.getItem("fiszki")));
+        odrzucZmianyLicznik++;
+    }
+
+    async function zapiszZmiany() {
+        if (JSON.stringify(fiszkiDoZmiany) == JSON.stringify({dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []})) {
+            return;
+        }
+        console.log(JSON.stringify(fiszkiDoZmiany))
+        const request = await fetch("http://localhost:8080/zapiszFiszki", {method: "POST", credentials: "include", headers: {
+            "Content-Type": "application/json"
+        }, body: JSON.stringify(fiszkiDoZmiany, (key, value) => {
+            return value === undefined ? -1 : value;
+          })}); 
+
+        if (request.status == 401) {
+            const request = await fetch("http://localhost:8080/refresh", {
+                method: "POST",
+                credentials: "include"
+              })
+
+            if (request.ok) {
+                const request = await fetch("http://localhost:8080/zapiszFiszki", {method: "POST", credentials: "include", headers: {
+                    "Content-Type": "application/json"
+                }, body: JSON.stringify(fiszkiDoZmiany, (key, value) => {
+                    return value === undefined ? -1 : value;
+                  })}); 
+
+                if (request.ok) {
+                    navigate("/");
+                } else {
+                    alert("Błąd serwera, fiszki nie zostały zapisane, poczekaj chwilę i spróbuj ponownie.");
+                }
+            } else if (request.status === 401) {
+                localStorage.clear();
+                navigate("/login")
+            } else {
+                alert("Błąd serwera, fiszki nie zostały zapisane, poczekaj chwilę i spróbuj ponownie.");
+            }
+        } 
+        else if (request.ok) {
+                navigate("/");
+            } else {
+                alert("Błąd serwera, fiszki nie zostały zapisane, poczekaj chwilę i spróbuj ponownie.");
+            }
+    }
+    
 
     if (loading) {
         return "Loading";
@@ -72,17 +131,20 @@ export default function Edycja() {
                 <h1 className="text-3xl mb-6">Twoje grupy:</h1>
 
                 <div className="overflow-y-auto space-y-4 pr-2">
-                    {fiszki.map((fiszka) => (
-                    <Grupa key={fiszka.id} idGrupy={fiszka.id} nazwa={fiszka.nazwa} fiszki={fiszka.fiszki} />
+                    {localGrupy.map((grupa, index) => (
+                    <Grupa key={index} tempIdGrupy={grupa.tempId} idGrupy={grupa.id} nazwa={grupa.nazwa} fiszki={grupa.fiszki} localGrupy={localGrupy} setLocalGrupy={setLocalGrupy} />
                     ))}
                 </div>
 
                 <div className="mt-6 flex gap-4">
-                    <button className="bg-[#ff4f69] hover:bg-[#ff8093] px-6 py-2 rounded-xl transition">
+                    <button onClick={dodajGrupe} className="bg-[#ff4f69] hover:bg-[#ff8093] px-6 py-2 rounded-xl transition">
                     Dodaj nową
                     </button>
-                    <button className="bg-[#2b0f54] hover:bg-[#533e70] px-6 py-2 rounded-xl transition">
-                    Zapisz
+                    <button onClick={zapiszZmiany} className="bg-[#2b0f54] hover:bg-[#533e70] px-6 py-2 rounded-xl transition">
+                    Zapisz i wyjdź
+                    </button>
+                    <button onClick={odrzucZmiany} className="bg-[#a71d13] hover:bg-[#995a56] px-6 py-2 rounded-xl transition">
+                    Odrzuć zmiany
                     </button>
                 </div>
                 </div>
@@ -91,9 +153,12 @@ export default function Edycja() {
       );
 }
 
-function Grupa({ idGrupy, nazwa, fiszki }) {
-    const [open, setOpen] = useState(false);
+function Grupa({ idGrupy, tempIdGrupy, nazwa, fiszki, localGrupy, setLocalGrupy }) {
+    const [open, setOpen] = useState(tempIdGrupy ? true : false);
     const [localFiszki, setLocalFiszki] = useState(fiszki);
+      
+ 
+    useEffect(() => {setLocalFiszki(fiszki); setOpen(tempIdGrupy ? true : false)}, [odrzucZmianyLicznik]);
 
     function handleChange(index, field, value, idFiszki, tempIdFiszki) {
         const updated = [...localFiszki];
@@ -102,16 +167,16 @@ function Grupa({ idGrupy, nazwa, fiszki }) {
         if (tempIdFiszki) {
             let indexFiszki = fiszkiDoZmiany.dodaneFiszki.findIndex((fiszka) => tempIdFiszki == fiszka.tempId);
             if (indexFiszki !== -1) {
-                fiszkiDoZmiany.dodaneFiszki.splice(indexFiszki, 1, {tempId: tempIdFiszki, slowo: updated[index]["slowo"], definicja: updated[index]["definicja"], zdanie: updated[index]["zdanie"]});
+                fiszkiDoZmiany.dodaneFiszki.splice(indexFiszki, 1, {groupId: idGrupy, tempIdGrupy: tempIdGrupy, tempId: tempIdFiszki, slowo: updated[index]["slowo"], definicja: updated[index]["definicja"], zdanie: updated[index]["zdanie"]});
             } else {
-                fiszkiDoZmiany.dodaneFiszki.push({tempId: tempIdFiszki, slowo: updated[index]["slowo"], definicja: updated[index]["definicja"], zdanie: updated[index]["zdanie"]});
+                fiszkiDoZmiany.dodaneFiszki.push({groupId: idGrupy, tempIdGrupy: tempIdGrupy, tempId: tempIdFiszki, slowo: updated[index]["slowo"], definicja: updated[index]["definicja"], zdanie: updated[index]["zdanie"]});
             } 
         } else {
             let indexFiszki = fiszkiDoZmiany.zmienioneFiszki.findIndex((fiszka) => idFiszki == fiszka.id);
             if (indexFiszki !== -1) {
-                fiszkiDoZmiany.zmienioneFiszki.splice(indexFiszki, 1, {id: idFiszki, slowo: updated[index]["slowo"], definicja: updated[index]["definicja"], zdanie: updated[index]["zdanie"]});
+                fiszkiDoZmiany.zmienioneFiszki.splice(indexFiszki, 1, {groupId: idGrupy, tempIdGrupy: tempIdGrupy, id: idFiszki, slowo: updated[index]["slowo"], definicja: updated[index]["definicja"], zdanie: updated[index]["zdanie"]});
             } else {
-                fiszkiDoZmiany.zmienioneFiszki.push({id: idFiszki, slowo: updated[index]["slowo"], definicja: updated[index]["definicja"], zdanie: updated[index]["zdanie"]});
+                fiszkiDoZmiany.zmienioneFiszki.push({groupId: idGrupy, tempIdGrupy: tempIdGrupy, id: idFiszki, slowo: updated[index]["slowo"], definicja: updated[index]["definicja"], zdanie: updated[index]["zdanie"]});
             }
         }
         
@@ -120,7 +185,8 @@ function Grupa({ idGrupy, nazwa, fiszki }) {
     }
 
     function dodajFiszke() {
-        setLocalFiszki([...localFiszki, {groupId: idGrupy, slowo: "", definicja: "", zdanie: "", tempId: increment++}]);
+        fiszkiDoZmiany.dodaneFiszki.push({groupId: idGrupy, tempIdGrupy: tempIdGrupy, tempId: increment, slowo: "", definicja: "", zdanie: ""});
+        setLocalFiszki([...localFiszki, {groupId: idGrupy, tempIdGrupy: tempIdGrupy, slowo: "", definicja: "", zdanie: "", tempId: increment++}]);
     }
 
     function usunFiszke(idFiszki, tempIdFiszki) {
@@ -136,28 +202,70 @@ function Grupa({ idGrupy, nazwa, fiszki }) {
         setLocalFiszki(localFiszki.filter((fiszka) => (fiszka.id && fiszka.id != idFiszki) || (fiszka.tempId && fiszka.tempId != tempIdFiszki)));
     }
 
+    function handleGroupChange(nazwaGrupy) {
+        if (tempIdGrupy) {
+            let index = fiszkiDoZmiany.dodaneGrupy.findIndex((grupa) => grupa.tempId == tempIdGrupy);
+            if (index !== -1) {
+                fiszkiDoZmiany.dodaneGrupy.splice(index, 1, {tempId: tempIdGrupy, nazwa: nazwaGrupy});
+            } else {
+                fiszkiDoZmiany.dodaneGrupy.push({tempId: tempIdGrupy, nazwa: nazwaGrupy});
+            }
+        } else {
+            let index = fiszkiDoZmiany.zmienioneGrupy.findIndex((grupa) => grupa.id == idGrupy);
+            if (index !== -1) {
+                fiszkiDoZmiany.zmienioneGrupy.splice(index, 1, {id: idGrupy, nazwa: nazwaGrupy});
+            } else {
+                fiszkiDoZmiany.zmienioneGrupy.push({id: idGrupy, nazwa: nazwaGrupy});
+            }
+        }
+        
+        let nextGrupy = localGrupy.map(grupa => {
+            if ((idGrupy && grupa.id === idGrupy) || (tempIdGrupy && grupa.tempId === tempIdGrupy)) {
+                return {...grupa, nazwa: nazwaGrupy};
+            } else {
+                return grupa;
+            }
+        });
+        setLocalGrupy(nextGrupy);
+
+        console.log(fiszkiDoZmiany)
+    }
+
+    function usunGrupe() {
+        if (idGrupy) {
+            let index = fiszkiDoZmiany.zmienioneGrupy.findIndex((grupa) => grupa.id == idGrupy);
+            fiszkiDoZmiany.zmienioneGrupy.splice(index);
+            fiszkiDoZmiany.usunieteGrupy.push({id: idGrupy});
+        } else {
+            let index = fiszkiDoZmiany.dodaneGrupy.findIndex((grupa) => grupa.tempId == tempIdGrupy);
+            fiszkiDoZmiany.dodaneGrupy.splice(index);
+        }
+
+        setLocalGrupy(localGrupy.filter((grupa) => (grupa.id && grupa.id != idGrupy) || (grupa.tempId && grupa.tempId != tempIdGrupy)));
+    }
+
     return (
         <div className='flex flex-col'>
-            <div className={"bg-[#2b0f54] px-4 py-3 flex flex-wrap justify-between items-center shadow-md sticky top-0"}>
+            <div className={"bg-[#2b0f54] px-4 py-3 flex justify-between items-center shadow-md sticky top-0"}>
 
-                <span className="text-lg">{nazwa}</span>
+                <input value={nazwa} onChange={(e) => handleGroupChange(e.target.value)} type='text' className="w-full mr-4 p-2 rounded-md bg-[#3e157c] text-white outline-none border border-[#2b0f54] focus:border-[#ff4f69] transition-colors"></input>
 
                 <div className="flex gap-3">
                     <button onClick={() => setOpen(!open)} className="bg-[#ff4f69] hover:bg-[#ff8093] px-3 py-1 rounded-lg transition text-sm">
                         {open ? "Zamknij" : "Edytuj"}
                     </button>
 
-                    <button className="bg-[#ab1f65] hover:bg-[#c72a78] px-3 py-1 rounded-lg transition text-sm">
+                    <button onClick={usunGrupe} className="bg-[#ab1f65] hover:bg-[#c72a78] px-3 py-1 rounded-lg transition text-sm">
                         Usuń
                     </button>
                 </div>           
 
             </div>
 
-            <div className={"bg-[#3e157c] w-full overflow-hidden transition-all duration-150 p-2 " + (open ? "opacity-100" : "max-h-0 opacity-0")}>
+            <div className={"bg-[#3e157c] w-full overflow-hidden transition-all duration-250 p-2 " + (open ? "opacity-100" : "max-h-0 opacity-0")}>
                 <div className='overflow-y-auto flex flex-col space-y-3'>
                     {localFiszki.map((fiszka, index) => (
-                        <div className='flex flex-col items-start p-2 bg-[#511fa3] rounded-xl'>
+                        <div key={index} className='flex flex-col items-start p-2 bg-[#511fa3] rounded-xl'>
                             <label htmlFor="slowo" className='text-white text-sm mb-1'>
                             Słowo:
                             </label>
@@ -198,9 +306,6 @@ function Grupa({ idGrupy, nazwa, fiszki }) {
                     <div className="mt-3 flex gap-4">
                         <button onClick={dodajFiszke} className="bg-[#ff4f69] hover:bg-[#ff8093] px-6 py-2 rounded-xl transition">
                         Dodaj nową
-                        </button>
-                        <button className="bg-[#2b0f54] hover:bg-[#533e70] px-6 py-2 rounded-xl transition">
-                        Zapisz
                         </button>
                     </div>
                 </div>
