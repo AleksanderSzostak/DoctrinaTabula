@@ -131,7 +131,7 @@ function Home() {
       console.log("No data yet — cannot flip");
       return;
     }
-
+    flip();
     if (!flipped) {
       setWord(fiszki[currentGroup].fiszki[currentFiszka].slowo || "Brak słowa");
     } else {
