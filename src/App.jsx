@@ -45,7 +45,14 @@ function Home() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem("loggedIn"));
   const [word, setWord] = useState("apple");
   const navigate = useNavigate();
-
+  const [flipped, setFlipped] = useState(false);
+  var [currentGroup, setGroup] = useState(0);
+  var [currentFiszka, setFiszka] = useState(1);
+  const [fiszki,setFiszki] = useState(null);
+  const [isCorrectHovered, setIsCorrectHovered] = useState(false);
+  const [isWrongHovered,   setIsWrongHovered]   = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [remainingFiszki, setRemainingFiszki] = useState(null);
   let status;
   useEffect(() => {fetch("http://localhost:8080/zestawy", {
     credentials: "include"})
@@ -70,7 +77,8 @@ function Home() {
               })
               .then(data => {
                 console.log(data);
-                //document.getElementById("explorer").innerText = data[0].nazwa;
+                setFiszki(data);
+                setLoading(false);
               });
           } 
           else if (res.status === 401) {
@@ -85,6 +93,8 @@ function Home() {
       }
       else if (status === 200) {
         console.log(data);
+        setFiszki(data);
+        setLoading(false);
         document.getElementById("explorer").innerText = "";
         for(const i of data){
           document.getElementById("explorer").innerHTML += i.nazwa+"<br>";
@@ -107,17 +117,49 @@ function Home() {
     setLoggedIn("false");
   }
 
-  const increment = () => {
+  const flip = () => {
     const element = document.getElementById('flashcard');
+    if (element) {
+      element.classList.remove('flip');
+      void element.offsetWidth;
+      element.classList.add('flip');
+    }
+  }
 
-    element.classList.remove('flip');
-    void element.offsetWidth;
-    element.classList.add('flip');
-    
-    Promise.all(
-    element.getAnimations({ subtree: true }).map((animation) => animation.finished),
-    ).then(() => setWord("jablko"));
-    
+  const increment = () => {
+    if (!fiszki || !fiszki[currentGroup] || !fiszki[currentGroup].fiszki) {
+      console.log("No data yet — cannot flip");
+      return;
+    }
+
+    if (!flipped) {
+      setWord(fiszki[currentGroup].fiszki[currentFiszka].slowo || "Brak słowa");
+    } else {
+      const def = fiszki[currentGroup].fiszki[currentFiszka];
+      setWord(
+        `Definicja: ${def.definicja || "??"}\n` +
+        `przykładowe zdanie: ${def.zdanie || "-"}`
+      );
+    }
+    setFlipped(!flipped);
+  };
+
+  const nextFiszka = (knew) =>{
+  if (!fiszki || !fiszki[currentGroup] || !fiszki[currentGroup].fiszki) {
+      console.log("Cannot go next — data not ready");
+      return;
+    }
+
+    const cards = fiszki[currentGroup].fiszki;
+    console.log(currentFiszka)
+    const currentIdx = currentFiszka - 1;
+    if (currentIdx + 2 < cards.length) {
+      setFiszka(currentFiszka + 1);
+      flip();
+      setWord(fiszki[currentGroup].fiszki[currentFiszka+1].slowo);
+    } else {
+      alert("koniec fiszek w tej grupie");
+    }
   };
 
   return (
@@ -145,7 +187,60 @@ function Home() {
 
           </div>
       </div>
-      <div id="main" class="h-full w-3/4 flex flex-col flex-auto">
+      <div id="main" class="h-full w-3/4 flex flex-col flex-auto ">
+
+
+      <div id="wrong"
+      onMouseEnter={() => setIsWrongHovered(true)}
+        onMouseLeave={() => setIsWrongHovered(false)}
+        style={{
+          padding: '20px 40px',
+          borderTopRightRadius: '8px',
+          borderBottomRightRadius: '8px',
+          backgroundColor: isWrongHovered 
+            ? 'rgba(255, 0, 0, 0.5)'     // semi-transparent red
+            : 'rgba(255, 0, 0, 0.0)',
+          
+          cursor: 'pointer',
+          transition: 'background-color 0.25s ease',
+          minWidth: '180px',
+          textAlign: 'center',
+        }}class="h-64 bg-gray-100 flex items-center justify-center"
+        onClick={() => nextFiszka(false)}
+       >
+          <h1           style={{
+            color: isWrongHovered
+            ? 'black'
+            : 'rgba(0, 0, 0, 0.0)',
+          }} class="text-4xl font-bold text-black">Nie umiem</h1>
+        </div>
+      <div id="correct" onMouseEnter={() => setIsCorrectHovered(true)}
+        onMouseLeave={() => setIsCorrectHovered(false)}
+        style={{
+          padding: '20px 40px',
+          borderTopLeftRadius: '8px',
+          borderBottomLeftRadius: '8px',
+          backgroundColor: isCorrectHovered 
+            ? 'rgba(0, 255, 0, 0.5)' 
+            : 'rgba(0, 255, 0, 0.0)',
+          cursor: 'pointer',
+          transition: 'background-color 0.25s ease',
+          minWidth: '180px',
+          textAlign: 'center',
+        }}
+        class="h-64 bg-gray-100 flex items-center justify-center"
+        onClick={() => nextFiszka(true)}
+        >
+          <h1 class="text-4xl font-bold text-black"
+          style={{
+            color: isCorrectHovered
+            ? 'black'
+            : 'rgba(0, 0, 0, 0.0)',
+          }}
+          >Umiem</h1>
+        </div>
+
+
         <div id="fish" class="bg-black h-full basis-3/4 flex flex-auto flex-wrap justify-center content-center">
           <div id="flashcard" class="bg-[#49e7ec] h-3/5 w-3/5 flex flex-wrap rounded-4xl justify-center content-center click:rotate-x-180" onClick={increment}>{word}</div>
         </div>
