@@ -156,6 +156,7 @@ function Home() {
     if (currentIdx + 2 < cards.length) {
       setFiszka(currentFiszka + 1);
       flip();
+      setFlipped(true);
       setWord(fiszki[currentGroup].fiszki[currentFiszka+1].slowo);
     } else {
       alert("koniec fiszek w tej grupie");
