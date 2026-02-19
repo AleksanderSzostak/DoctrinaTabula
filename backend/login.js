@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import connection from "./index.js" 
+import { connection } from "./index.js" 
 
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -30,33 +30,39 @@ export default function login(req, res) {
           message: "Invalid credentials"
         });
     }
-
-    console.log(results[0].id);
-    console.log(process.env.JWT_SECRET)
-    const token = jwt.sign(
-      { userId: results[0].id },
-      process.env.JWT_SECRET,
-      { expiresIn: "15m" }
-    );
-    const refreshToken = jwt.sign(
-      { userId: results[0].id },
-      process.env.JWT_SECRET,
-      { expiresIn: "30d" }
-    );
-
-    res.status(200)
-    .cookie("access", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: true,
-      maxAge: 15 * 60 * 1000
+    let id = results[0].id;
+    connection.query("SELECT tokenVersion FROM users WHERE nazwa = ?", [username], async (err, results) => {
+      if (err) {
+        throw err;
+      }
+        console.log(id);
+        console.log(process.env.JWT_SECRET)
+        const token = jwt.sign(
+          { userId: id },
+          process.env.JWT_SECRET,
+          { expiresIn: "15m" }
+        );
+        const refreshToken = jwt.sign(
+          { userId: id,
+            tokenVersion: results[0].tokenVersion,
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: "30d" }
+        );
+    
+        res.status(200)
+        .cookie("access", token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: true,
+          maxAge: 15 * 60 * 1000
+        })
+        .cookie("refresh", refreshToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: true,
+          maxAge: 30 * 24 * 60 * 60 * 1000
+        }).json({ success: true });
+      });
     })
-    .cookie("refresh", refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: true,
-      path: "/refresh",
-      maxAge: 30 * 24 * 60 * 60 * 1000
-    }).json({ success: true });
-  });
 }

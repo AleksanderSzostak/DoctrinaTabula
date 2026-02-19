@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sty 13, 2026 at 07:54 PM
+-- Generation Time: Feb 19, 2026 at 06:22 PM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.2.12
 
@@ -42,16 +42,7 @@ CREATE TABLE `fiszki` (
 --
 
 INSERT INTO `fiszki` (`id`, `slowo`, `definicja`, `zdanie`, `groupid`) VALUES
-(1, 'Fotosynteza', 'Proces, w którym rośliny przekształcają światło w energię.', 'Rośliny wykorzystują fotosyntezę do wzrostu.', 1),
-(2, 'Grawitacja', 'Siła przyciągająca obiekty do siebie.', 'Grawitacja sprawia, że stoimy na ziemi.', 1),
-(3, 'Atom', 'Najmniejsza jednostka budująca materię.', 'Wszystko wokół nas składa się z atomów.', 1),
-(4, 'Ekosystem', 'Zespół organizmów i ich środowisko.', 'Las jest złożonym ekosystemem.', 1),
-(5, 'Demokracja', 'Ustrój, w którym władzę sprawuje naród.', 'W demokracji obywatele wybierają swoich przedstawicieli.', 1),
-(6, 'Ewolucja', 'Proces stopniowych zmian gatunków.', 'Ewolucja tłumaczy różnorodność życia na Ziemi.', 1),
-(7, 'Układ słoneczny', 'Zbiór planet krążących wokół Słońca.', 'Ziemia jest częścią Układu Słonecznego.', 1),
-(8, 'Internet', 'Globalna sieć łącząca komputery na całym świecie.', 'Korzystamy z Internetu każdego dnia.', 1),
-(9, 'Obieg wody', 'Ciągły cykl krążenia wody na Ziemi.', 'Deszcz jest elementem obiegu wody.', 1),
-(10, 'Energia', 'Zdolność do wykonania pracy lub wywołania zmiany.', 'Prąd elektryczny jest formą energii.', 1);
+(48, 'Test1.1', 'Test1.1', 'Test1.1', 68);
 
 -- --------------------------------------------------------
 
@@ -71,7 +62,9 @@ CREATE TABLE `groups` (
 --
 
 INSERT INTO `groups` (`id`, `nazwa`, `userid`, `private`) VALUES
-(1, 'Pytania testowe', 1, 'false');
+(68, 'Test1d', 1, NULL),
+(70, 'Test2', 1, NULL),
+(71, 'Test3', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -83,17 +76,18 @@ CREATE TABLE `users` (
   `id` int(1) NOT NULL,
   `nazwa` text NOT NULL,
   `email` varchar(8) DEFAULT NULL,
-  `haslo` text DEFAULT NULL
+  `haslo` text DEFAULT NULL,
+  `tokenVersion` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `nazwa`, `email`, `haslo`) VALUES
-(1, 'Test', 'bajojajo', '$2b$10$t4I7xiA7DO2g0z1UYKNT3.8dTUafzgrMStF0t5MHAGWfjK.demEg6'),
-(2, 'test2', 'brak', '$2b$10$aAygV2osgP7JYbza5UaQ3eSIbfY0QBDqnHnuyX9mxgtYDdtejNMT2'),
-(3, 'Test3', 'brak', '$2b$10$mM9eic.ss7gBHLpmv74NBuqOLDHqbm4/cna3oHl.6wsKNqtOyFrOK');
+INSERT INTO `users` (`id`, `nazwa`, `email`, `haslo`, `tokenVersion`) VALUES
+(1, 'Test', 'bajojajo', '$2b$10$t4I7xiA7DO2g0z1UYKNT3.8dTUafzgrMStF0t5MHAGWfjK.demEg6', 3),
+(2, 'test2', 'brak', '$2b$10$aAygV2osgP7JYbza5UaQ3eSIbfY0QBDqnHnuyX9mxgtYDdtejNMT2', 0),
+(3, 'Test3', 'brak', '$2b$10$mM9eic.ss7gBHLpmv74NBuqOLDHqbm4/cna3oHl.6wsKNqtOyFrOK', 0);
 
 --
 -- Indeksy dla zrzutów tabel
@@ -125,6 +119,18 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `fiszki`
+--
+ALTER TABLE `fiszki`
+  MODIFY `id` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+
+--
+-- AUTO_INCREMENT for table `groups`
+--
+ALTER TABLE `groups`
+  MODIFY `id` int(1) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -138,13 +144,13 @@ ALTER TABLE `users`
 -- Constraints for table `fiszki`
 --
 ALTER TABLE `fiszki`
-  ADD CONSTRAINT `fiszki_ibfk_1` FOREIGN KEY (`groupid`) REFERENCES `groups` (`id`);
+  ADD CONSTRAINT `fiszki_ibfk_1` FOREIGN KEY (`groupid`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `groups`
 --
 ALTER TABLE `groups`
-  ADD CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

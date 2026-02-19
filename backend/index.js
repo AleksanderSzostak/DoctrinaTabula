@@ -16,25 +16,24 @@ app.post("/sciezka", (req, res) => {
 
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import express, { text } from "express";
+import express from "express";
 import cors from "cors";
 import mysql from "mysql";
 import login from "./login.js";
 import refresh from "./refresh.js";
 import register from "./register.js";
 import jwt from "jsonwebtoken";
+import zapiszFiszki from "./zapiszFiszki.js";
 
 const app = express();
 const port = 8080;
 
-let connection = mysql.createConnection({
+export let connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
   database: "fiszki"
 });
-
-export default connection;
 
 connection.connect((err) => {
   if (err) throw err;
@@ -56,19 +55,33 @@ app.post("/register", register);
 app.post("/refresh", refresh);
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("access", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "strict"
-  });
+  const token = req.cookies.refresh;
 
-  res.clearCookie("refresh", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "strict"
-  });
+  if (token) {
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-  res.sendStatus(204);
+      connection.query("UPDATE users SET tokenVersion = ? WHERE id = ?", [payload.tokenVersion+1, payload.userId], (err, result) => {
+        if (err) {throw err}
+        res.clearCookie("access", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict"
+        });
+      
+        res.clearCookie("refresh", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+          path: "/"
+        });
+      
+        res.sendStatus(204);
+      })
+    } catch (err) {
+      console.log(err);
+    }
+  }
 });
 
 
@@ -93,8 +106,9 @@ app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
+app.post('/zapiszFiszki', zapiszFiszki)
 
-function verifyUser(req) {
+export function verifyUser(req) {
   const token = req.cookies.access;
 
   if (!token) {
@@ -140,6 +154,7 @@ app.get('/zestawy', (req, res) => {
         result.push({
           id: group.id,
           nazwa: group.nazwa,
+          id: group.id,
           fiszki: queryAsync(sql)
         });
       }
@@ -147,6 +162,7 @@ app.get('/zestawy', (req, res) => {
         result.map(async g => ({
           id: g.id,
           nazwa: g.nazwa,
+          id: g.id,
           fiszki: await g.fiszki
         }))
       );
@@ -171,5 +187,5 @@ app.get('/fiszki',(req,res)=>{
         if(err) return res.json(err);
         return res.json(data);
     })
-  });
+});
  

@@ -35,11 +35,31 @@ fetch("bla bla bla", {
   });
 */
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
+import Edycja from "./Edycja";
 import './App.css'
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/edytuj",
+    element: <Edycja />,
+  },
+]);
 
 function Home() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem("loggedIn"));
@@ -78,11 +98,13 @@ function Home() {
               .then(data => {
                 console.log(data);
                 setFiszki(data);
+                setGroup(0);
                 setLoading(false);
+                localStorage.setItem("fiszki", JSON.stringify(data));
               });
           } 
           else if (res.status === 401) {
-            localStorage.setItem("loggedIn", "false");
+            localStorage.clear();
             setLoggedIn("false");/* <-- Zakladajac ze funkcja jest w Home() (to odswiezy UI)*/
             navigate("/login"); 
             /*WAZNE: 
@@ -96,6 +118,7 @@ function Home() {
         setFiszki(data);
         setGroup(0);
         setLoading(false);
+        localStorage.setItem("fiszki", JSON.stringify(data));
       }
     })
   .catch(err => {
@@ -109,7 +132,7 @@ function Home() {
       credentials: "include"
     });
 
-    localStorage.setItem("loggedIn", "false");
+    localStorage.clear();
     setLoggedIn("false");
   }
 
@@ -178,15 +201,20 @@ function Home() {
 
   return (
     <>
-      <div id="header" class="h-2/25 w-full flex flex-row flex-auto">
-        <div id="menu" class="bg-[#2b0f54] h-full basis-1/2 flex flex-auto">
-          <div class="text-4xl text-white justify-center content-center ml-[2%]">Fiszki</div>
+      <div id="header" className="h-2/25 w-full flex flex-row flex-auto">
+        <div id="menu" className="bg-[#2b0f54] h-full basis-1/2 flex flex-auto">
+          <div className="text-4xl text-white justify-center content-center ml-[2%]">Fiszki</div>
         </div>
-        <div id="userMenu" class="bg-[#ff4f69] h-full basis-1/10 flex justify-center content-center">
+        <Link to={loggedIn == "true" ? "/edytuj" : "/login"} className="basis-1/10">
+          <div id="editMenu" className="bg-[#ff4f69] hover:bg-[#ff8093] h-full flex justify-center items-center">
+            <div className="text-3xl text-white justify-center">Edytuj fiszki</div>
+          </div>
+        </Link>
+        <div id="userMenu" className="bg-[#ff4f69] hover:bg-[#ff8093] h-full basis-1/10 flex justify-center items-center">
           {loggedIn == "true" ?
-            <button onClick={wyloguj} className="text-3xl text-white justify-center content-center ml-[2%] cursor-pointer">Wyloguj się</button>
+            <button onClick={wyloguj} className="text-3xl text-white justify-center ml-[2%] cursor-pointer w-full h-full">Wyloguj się</button>
           : 
-            <Link to="/login"><div class="text-3xl text-white justify-center content-center">Zaloguj się</div></Link>
+            <Link to="/login" className="text-3xl text-white w-full h-full flex justify-center items-center">Zaloguj się</Link>
           }
           
         </div>
@@ -274,15 +302,7 @@ function Home() {
 
 
 function App() {
-  return (
-    <BrowserRouter>
-        <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-        </Routes>
-    </BrowserRouter>
-  );
+  return <RouterProvider router={router} />;
 }
 
 
