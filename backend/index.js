@@ -28,13 +28,12 @@ import zapiszFiszki from "./zapiszFiszki.js";
 const app = express();
 const port = 8080;
 
-export let connection = mysql.createConnection({
-  host: "fiszki.mysql.database.azure.com",
-  user: "db_admin",
-  password: "Warszawa2025!",
-  database: "fiszki",
-  port: 3306
-  //ssl:{ca:fs.readFileSync("{ca-cert filename}")}
+export var connection = mysql.createConnection({
+  host:"fiszki.mysql.database.azure.com",
+  user:"db_admin",
+  password:"Warszawa2025!",
+  database:"fiszki",
+  port:3306
 });
 
 connection.connect((err) => {
