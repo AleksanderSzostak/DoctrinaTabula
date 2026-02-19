@@ -29,10 +29,12 @@ const app = express();
 const port = 8080;
 
 export let connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "fiszki"
+  host: "fiszki.mysql.database.azure.com",
+  user: "db_admin",
+  password: "Warszawa2025!",
+  database: "fiszki",
+  port: 3306,
+  ssl:{ca:fs.readFileSync("{ca-cert filename}")}
 });
 
 connection.connect((err) => {
