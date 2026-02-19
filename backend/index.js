@@ -33,8 +33,8 @@ export let connection = mysql.createConnection({
   user: "db_admin",
   password: "Warszawa2025!",
   database: "fiszki",
-  port: 3306,
-  ssl:{ca:fs.readFileSync("{ca-cert filename}")}
+  port: 3306
+  //ssl:{ca:fs.readFileSync("{ca-cert filename}")}
 });
 
 connection.connect((err) => {
