@@ -43,11 +43,11 @@ import './App.css'
 
 function Home() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem("loggedIn"));
-  const [word, setWord] = useState("apple");
+  const [word, setWord] = useState("Kliknij, żeby zacząć!");
   const navigate = useNavigate();
   const [flipped, setFlipped] = useState(false);
-  var [currentGroup, setGroup] = useState(0);
-  var [currentFiszka, setFiszka] = useState(1);
+  const [currentGroup, setGroup] = useState(0);
+  const [currentFiszka, setFiszka] = useState(0);
   const [fiszki,setFiszki] = useState(null);
   const [isCorrectHovered, setIsCorrectHovered] = useState(false);
   const [isWrongHovered,   setIsWrongHovered]   = useState(false);
@@ -93,13 +93,10 @@ function Home() {
       }
       else if (status === 200) {
         console.log(data);
-        setFiszki(data);
+        setFiszki(data.zestawy);
+        setGroup(0);
         setLoading(false);
-        document.getElementById("explorer").innerText = "";
-        for(const i of data){
-          document.getElementById("explorer").innerHTML += i.nazwa+"<br>";
-        }
-        
+        console.log("FISZKI:", data.zestawy);
       }
     })
   .catch(err => {
@@ -163,6 +160,22 @@ function Home() {
     }
   };
 
+  const changeGroup = (index) => {
+  if (!fiszki || !fiszki[index]) return;
+
+  setGroup(index);
+  setFiszka(1);
+  setFlipped(false);
+
+  const firstCard = fiszki[index].fiszki?.[0];
+  if (firstCard) {
+    setWord(firstCard.slowo || "Brak słowa");
+  } else {
+    setWord("Brak fiszek w tej grupie");
+  }
+};
+
+
   return (
     <>
       <div id="header" class="h-2/25 w-full flex flex-row flex-auto">
@@ -182,10 +195,17 @@ function Home() {
       <div id="flexBlock" class="flex flex-row h-23/25 w-full">
         <div id="sidebar" class="h-full w-1/4 flex flex-col flex-auto">
             <div id="titleBar" class="bg-[#ff4f69] basis-1/10 w-full flex justify-center content-center">
-              <div class="text-3xl text-white justify-center content-center" >Pliki</div>
+              <div class="text-3xl text-white justify-center content-center" >Grupy</div>
             </div>
           <div id="explorer" class="bg-[#ab1f65] basis-9/10 w-full flex flex-auto">
-
+            {fiszki && fiszki.map((group, index) => (
+              <div key={group.id}>
+                <button onClick={() => changeGroup(index)}>
+                  {group.nazwa}
+                </button>
+                <br/>
+              </div>
+            ))}
           </div>
       </div>
       <div id="main" class="h-full w-3/4 flex flex-col flex-auto ">

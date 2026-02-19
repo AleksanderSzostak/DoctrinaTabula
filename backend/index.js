@@ -138,12 +138,14 @@ app.get('/zestawy', (req, res) => {
         const sql = `SELECT * FROM fiszki WHERE groupid = ${group.id}`;
  
         result.push({
+          id: group.id,
           nazwa: group.nazwa,
           fiszki: queryAsync(sql)
         });
       }
       const resolved = await Promise.all(
         result.map(async g => ({
+          id: g.id,
           nazwa: g.nazwa,
           fiszki: await g.fiszki
         }))
