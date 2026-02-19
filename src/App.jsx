@@ -150,7 +150,7 @@ function Home() {
         </div>
         <Link to={loggedIn == "true" ? "/edytuj" : "/login"} className="basis-1/10">
           <div id="editMenu" className="bg-[#ff4f69] hover:bg-[#ff8093] h-full flex justify-center items-center">
-            <div className="text-3xl text-white justify-center">Test</div>
+            <div className="text-3xl text-white justify-center">Edytuj fiszki</div>
           </div>
         </Link>
         <div id="userMenu" className="bg-[#ff4f69] hover:bg-[#ff8093] h-full basis-1/10 flex justify-center items-center">
