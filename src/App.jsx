@@ -46,8 +46,8 @@ function Home() {
   const [word, setWord] = useState("Kliknij, żeby zacząć!");
   const navigate = useNavigate();
   const [flipped, setFlipped] = useState(false);
-  const [currentGroup, setGroup] = useState(0);
-  const [currentFiszka, setFiszka] = useState(0);
+  var [currentGroup, setGroup] = useState(0);
+  var [currentFiszka, setFiszka] = useState(1);
   const [fiszki,setFiszki] = useState(null);
   const [isCorrectHovered, setIsCorrectHovered] = useState(false);
   const [isWrongHovered,   setIsWrongHovered]   = useState(false);
@@ -93,10 +93,9 @@ function Home() {
       }
       else if (status === 200) {
         console.log(data);
-        setFiszki(data.zestawy);
+        setFiszki(data);
         setGroup(0);
         setLoading(false);
-        console.log("FISZKI:", data.zestawy);
       }
     })
   .catch(err => {
@@ -164,7 +163,7 @@ function Home() {
   if (!fiszki || !fiszki[index]) return;
 
   setGroup(index);
-  setFiszka(1);
+  setFiszka(0);
   setFlipped(false);
 
   const firstCard = fiszki[index].fiszki?.[0];
@@ -203,7 +202,7 @@ function Home() {
                 <button onClick={() => changeGroup(index)}>
                   {group.nazwa}
                 </button>
-                <br/>
+                <br />
               </div>
             ))}
           </div>
