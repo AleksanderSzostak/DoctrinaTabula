@@ -35,12 +35,31 @@ fetch("bla bla bla", {
   });
 */
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
 import Edycja from "./Edycja";
 import './App.css'
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/edytuj",
+    element: <Edycja />,
+  },
+]);
 
 function Home() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem("loggedIn"));
@@ -170,16 +189,7 @@ function Home() {
 
 
 function App() {
-  return (
-    <BrowserRouter>
-        <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/edytuj" element={<Edycja />} />
-        </Routes>
-    </BrowserRouter>
-  );
+  return <RouterProvider router={router} />;
 }
 
 

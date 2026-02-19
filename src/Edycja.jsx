@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useRef } from "react";
+import { Link, useNavigate, useBlocker } from 'react-router-dom';
+import { useEffect, useState } from "react";
 
 let fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []};
 let increment = 1;
@@ -11,7 +11,11 @@ let refreshPage = 0;
 export default function Edycja() {
     const [localGrupy, setLocalGrupy] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [shouldConfirm, setShouldConfirm] = useState(false);
     const navigate = useNavigate();
+
+    confirmChangesOnLeave(shouldConfirm);
+    confirmChangesOnRoute(shouldConfirm);
 
     useEffect(() => {
         if (localStorage.getItem("loggedIn") !== "true") {
@@ -43,6 +47,10 @@ export default function Edycja() {
     }, [refreshPage]);
 
     async function wyloguj() {
+        if (shouldConfirm && !confirm("If you logout you will lose all your changes")) {
+            return;
+        }
+        setShouldConfirm(false);
         await fetch("http://localhost:8080/logout", {
             method: "POST",
             credentials: "include"
@@ -52,14 +60,49 @@ export default function Edycja() {
         navigate("/");
     }
 
+    function confirmChangesOnRoute(when) {
+        const blocker = useBlocker(when);
+
+        useEffect(() => {
+            if (blocker.state === "blocked") {
+                const confirmLeave = window.confirm(
+                    "Are you sure you want to leave this page?"
+                );
+
+                if (confirmLeave) {
+                    blocker.proceed();
+                } else {
+                    blocker.reset();
+                }
+            }
+        }, [blocker]);
+    }
+
+    function confirmChangesOnLeave(when) {
+        useEffect(() => {
+            const handleBeforeUnload = (event) => {
+              if (!when) return;
+              event.preventDefault();
+              event.returnValue = "";
+            };
+        
+            window.addEventListener("beforeunload", handleBeforeUnload);
+            return () => {
+              window.removeEventListener("beforeunload", handleBeforeUnload);
+            };
+          }, [when]);
+    }
+
     function dodajGrupe() {
         fiszkiDoZmiany.dodaneGrupy.push({ tempId: increment2, nazwa: "" });
         setLocalGrupy([...localGrupy, {fiszki: [], nazwa: "", tempId: increment2++}]);
+        setShouldConfirm(true);
     }
 
     function odrzucZmiany() {
         fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []};
         setLocalGrupy(JSON.parse(localStorage.getItem("fiszki")));
+        setShouldConfirm(true);
         odrzucZmianyLicznik++;
     }
 
@@ -132,7 +175,7 @@ export default function Edycja() {
 
                 <div className="overflow-y-auto space-y-4 pr-2">
                     {localGrupy.map((grupa, index) => (
-                    <Grupa key={index} tempIdGrupy={grupa.tempId} idGrupy={grupa.id} nazwa={grupa.nazwa} fiszki={grupa.fiszki} localGrupy={localGrupy} setLocalGrupy={setLocalGrupy} />
+                    <Grupa key={index} setShouldConfirm={setShouldConfirm} tempIdGrupy={grupa.tempId} idGrupy={grupa.id} nazwa={grupa.nazwa} fiszki={grupa.fiszki} localGrupy={localGrupy} setLocalGrupy={setLocalGrupy} />
                     ))}
                 </div>
 
@@ -153,7 +196,7 @@ export default function Edycja() {
       );
 }
 
-function Grupa({ idGrupy, tempIdGrupy, nazwa, fiszki, localGrupy, setLocalGrupy }) {
+function Grupa({ idGrupy, tempIdGrupy, nazwa, fiszki, localGrupy, setLocalGrupy, setShouldConfirm }) {
     const [open, setOpen] = useState(tempIdGrupy ? true : false);
     const [localFiszki, setLocalFiszki] = useState(fiszki);
       
@@ -182,11 +225,13 @@ function Grupa({ idGrupy, tempIdGrupy, nazwa, fiszki, localGrupy, setLocalGrupy 
         
         console.log(fiszkiDoZmiany)
         setLocalFiszki(updated);
+        setShouldConfirm(true);
     }
 
     function dodajFiszke() {
         fiszkiDoZmiany.dodaneFiszki.push({groupId: idGrupy, tempIdGrupy: tempIdGrupy, tempId: increment, slowo: "", definicja: "", zdanie: ""});
         setLocalFiszki([...localFiszki, {groupId: idGrupy, tempIdGrupy: tempIdGrupy, slowo: "", definicja: "", zdanie: "", tempId: increment++}]);
+        setShouldConfirm(true);
     }
 
     function usunFiszke(idFiszki, tempIdFiszki) {
@@ -200,6 +245,7 @@ function Grupa({ idGrupy, tempIdGrupy, nazwa, fiszki, localGrupy, setLocalGrupy 
         }
 
         setLocalFiszki(localFiszki.filter((fiszka) => (fiszka.id && fiszka.id != idFiszki) || (fiszka.tempId && fiszka.tempId != tempIdFiszki)));
+        setShouldConfirm(true);
     }
 
     function handleGroupChange(nazwaGrupy) {
@@ -227,6 +273,7 @@ function Grupa({ idGrupy, tempIdGrupy, nazwa, fiszki, localGrupy, setLocalGrupy 
             }
         });
         setLocalGrupy(nextGrupy);
+        setShouldConfirm(true);
 
         console.log(fiszkiDoZmiany)
     }
@@ -240,8 +287,9 @@ function Grupa({ idGrupy, tempIdGrupy, nazwa, fiszki, localGrupy, setLocalGrupy 
             let index = fiszkiDoZmiany.dodaneGrupy.findIndex((grupa) => grupa.tempId == tempIdGrupy);
             fiszkiDoZmiany.dodaneGrupy.splice(index);
         }
-
+        
         setLocalGrupy(localGrupy.filter((grupa) => (grupa.id && grupa.id != idGrupy) || (grupa.tempId && grupa.tempId != tempIdGrupy)));
+        setShouldConfirm(true);
     }
 
     return (

@@ -55,19 +55,33 @@ app.post("/register", register);
 app.post("/refresh", refresh);
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("access", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "strict"
-  });
+  const token = req.cookies.refresh;
 
-  res.clearCookie("refresh", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "strict"
-  });
+  if (token) {
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-  res.sendStatus(204);
+      connection.query("UPDATE users SET tokenVersion = ? WHERE id = ?", [payload.tokenVersion+1, payload.userId], (err, result) => {
+        if (err) {throw err}
+        res.clearCookie("access", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict"
+        });
+      
+        res.clearCookie("refresh", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+          path: "/"
+        });
+      
+        res.sendStatus(204);
+      })
+    } catch (err) {
+      console.log(err);
+    }
+  }
 });
 
 
