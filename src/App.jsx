@@ -165,6 +165,7 @@ function Home() {
   setGroup(index);
   setFiszka(0);
   setFlipped(false);
+  setWord("Kliknij, żeby zacząć!");
 
   const firstCard = fiszki[index].fiszki?.[0];
   if (firstCard) {
@@ -196,14 +197,11 @@ function Home() {
             <div id="titleBar" class="bg-[#ff4f69] basis-1/10 w-full flex justify-center content-center">
               <div class="text-3xl text-white justify-center content-center" >Grupy</div>
             </div>
-          <div id="explorer" class="bg-[#ab1f65] basis-9/10 w-full flex flex-auto">
+          <div id="explorer" class="bg-[#ab1f65] basis-9/10 w-full flex flex-auto flex-col p-5 items-center">
             {fiszki && fiszki.map((group, index) => (
-              <div key={group.id}>
-                <button onClick={() => changeGroup(index)}>
-                  {group.nazwa}
-                </button>
-                <br />
-              </div>
+              <button key={group.id} class="w-4/5 bg-[#ff4f69] hover:bg-[#ff4f69]/80 text-white text-xl font-semibold p-5 m-2 rounded-2xl" onClick={() => changeGroup(index)}>
+                {group.nazwa}
+              </button>
             ))}
           </div>
       </div>
