@@ -37,7 +37,7 @@ export default async function zapiszFiszki(req, res) {
 
         for (const grupa of dodaneGrupy) {
             const insertGroupSql = `
-                INSERT INTO groups (nazwa, userid)
+                INSERT INTO \`groups\` (nazwa, userid)
                 VALUES (?, ?)
             `;
             const values = [grupa.nazwa, userId];
@@ -56,7 +56,7 @@ export default async function zapiszFiszki(req, res) {
         if (existingGroupIds.length > 0) {
         const selectGroupsSql = `
             SELECT id
-            FROM groups
+            FROM \`groups\`
             WHERE userid = ?
             AND id IN (?)
         `;
@@ -114,7 +114,7 @@ export default async function zapiszFiszki(req, res) {
             const deleteFiszkiSql = `
             DELETE f
             FROM fiszki f
-            INNER JOIN groups g ON f.groupId = g.id
+            INNER JOIN \`groups\` g ON f.groupId = g.id
             WHERE f.id IN (?)
                 AND g.userid = ?
             `;
@@ -129,7 +129,7 @@ export default async function zapiszFiszki(req, res) {
             const groupIds = usunieteGrupy.map(g => g.id);
     
             const deleteGroupsSql = `
-            DELETE FROM groups
+            DELETE FROM \`groups\`
             WHERE id IN (?)
                 AND userid = ?
             `;
@@ -142,7 +142,7 @@ export default async function zapiszFiszki(req, res) {
     
         for (const grupa of zmienioneGrupy) {
             const updateGroupSql = `
-            UPDATE groups
+            UPDATE \`groups\`
             SET nazwa = ?
             WHERE id = ? AND userid = ?
             `;
@@ -157,7 +157,7 @@ export default async function zapiszFiszki(req, res) {
         for (const fiszka of zmienioneFiszki) {
             const updateFiszkaSql = `
             UPDATE fiszki f
-            INNER JOIN groups g ON f.groupId = g.id
+            INNER JOIN \`groups\` g ON f.groupId = g.id
             SET f.slowo = ?, f.definicja = ?, f.zdanie = ?
             WHERE f.id = ? AND g.userid = ?
             `;

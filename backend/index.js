@@ -142,7 +142,7 @@ app.get('/zestawy', (req, res) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
  
-  const sqlgroup = `SELECT * FROM groups WHERE userid = ${id}`;
+  const sqlgroup = `SELECT * FROM \`groups\` WHERE userid = ${id}`;
  
   connection.query(sqlgroup, async (err, groups) => {
     if (err) return res.status(500).json(err);
@@ -183,7 +183,7 @@ app.get('/fiszki',(req,res)=>{
       message: "Unathorized"
     })
   }
-    const sql = "SELECT fiszki.* FROM fiszki INNER JOIN groups on fiszki.groupid = groups.id WHERE groups.userid = "+id+";";
+    const sql = "SELECT fiszki.* FROM fiszki INNER JOIN \`groups\` on fiszki.groupid = \`groups\`.id WHERE \`groups\`.userid = "+id+";";
     db.query(sql,(err, data)=>{
         if(err) return res.json(err);
         return res.json(data);
