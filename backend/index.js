@@ -15,24 +15,26 @@ app.post("/sciezka", (req, res) => {
 */
 
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
 import mysql from "mysql";
 import login from "./login.js";
 import refresh from "./refresh.js";
 import register from "./register.js";
+import jwt from "jsonwebtoken";
+import zapiszFiszki from "./zapiszFiszki.js";
 
 const app = express();
 const port = 8080;
 
-let connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "fiszki"
+export var connection = mysql.createConnection({
+  host:"fiszki.mysql.database.azure.com",
+  user:"db_admin",
+  password:"Warszawa2025!",
+  database:"fiszki",
+  port:3306
 });
-
-export default connection;
 
 connection.connect((err) => {
   if (err) throw err;
@@ -45,6 +47,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/login", login);
 
@@ -53,19 +56,33 @@ app.post("/register", register);
 app.post("/refresh", refresh);
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("access", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "strict"
-  });
+  const token = req.cookies.refresh;
 
-  res.clearCookie("refresh", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "strict"
-  });
+  if (token) {
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-  res.sendStatus(204);
+      connection.query("UPDATE users SET tokenVersion = ? WHERE id = ?", [payload.tokenVersion+1, payload.userId], (err, result) => {
+        if (err) {throw err}
+        res.clearCookie("access", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict"
+        });
+      
+        res.clearCookie("refresh", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+          path: "/"
+        });
+      
+        res.sendStatus(204);
+      })
+    } catch (err) {
+      console.log(err);
+    }
+  }
 });
 
 
@@ -90,18 +107,86 @@ app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
+app.post('/zapiszFiszki', zapiszFiszki)
 
-function verifyUser(req) {
-  const token = req.cookies.refresh;
+export function verifyUser(req) {
+  const token = req.cookies.access;
 
-    if (!token) {
-        return null;
-    }
+  if (!token) {
+    console.log("Wrong cookie")
+    return null;
+  }
 
-    try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
-        return payload.userId;
-    } catch {
-        return null;
-    }
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    return payload.userId;
+  } catch (error) {
+    console.log("Token verification failed. " + error)
+    return null;
+  }
 }
+
+app.get('/zestawy', (req, res) => {
+ 
+  function queryAsync(sql) {
+    return new Promise((resolve, reject) => {
+      connection.query(sql, (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    });
+  }
+ 
+  const id = verifyUser(req);
+  if (!id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+ 
+  const sqlgroup = `SELECT * FROM \`groups\` WHERE userid = ${id}`;
+ 
+  connection.query(sqlgroup, async (err, groups) => {
+    if (err) return res.status(500).json(err);
+ 
+    try {
+      const result = [];
+      for (const group of groups) {
+        const sql = `SELECT * FROM fiszki WHERE groupid = ${group.id}`;
+ 
+        result.push({
+          id: group.id,
+          nazwa: group.nazwa,
+          id: group.id,
+          fiszki: queryAsync(sql)
+        });
+      }
+      const resolved = await Promise.all(
+        result.map(async g => ({
+          id: g.id,
+          nazwa: g.nazwa,
+          id: g.id,
+          fiszki: await g.fiszki
+        }))
+      );
+ 
+      res.json(resolved);
+ 
+    } catch (e) {
+      res.status(500).json(e);
+    }
+  });
+});
+
+app.get('/fiszki',(req,res)=>{
+  let id = verifyUser(req);
+  if (!id) {
+    return res.status(401).send({
+      message: "Unathorized"
+    })
+  }
+    const sql = "SELECT fiszki.* FROM fiszki INNER JOIN \`groups\` on fiszki.groupid = \`groups\`.id WHERE \`groups\`.userid = "+id+";";
+    db.query(sql,(err, data)=>{
+        if(err) return res.json(err);
+        return res.json(data);
+    })
+});
+ 
