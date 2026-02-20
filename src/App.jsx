@@ -67,7 +67,7 @@ function Home() {
   const navigate = useNavigate();
   const [flipped, setFlipped] = useState(false);
   var [currentGroup, setGroup] = useState(0);
-  var [currentFiszka, setFiszka] = useState(1);
+  var [currentFiszka, setFiszka] = useState(0);
   const [fiszki,setFiszki] = useState(null);
   const [isCorrectHovered, setIsCorrectHovered] = useState(false);
   const [isWrongHovered,   setIsWrongHovered]   = useState(false);
@@ -162,7 +162,11 @@ function Home() {
     }
     setFlipped(!flipped);
   };
-
+  useEffect(()=>{
+    if(!loading){
+     setWord(fiszki[currentGroup].fiszki[currentFiszka].slowo);
+    }
+  },[currentFiszka]) 
   const nextFiszka = (knew) =>{
   if (!fiszki || !fiszki[currentGroup] || !fiszki[currentGroup].fiszki) {
       console.log("Cannot go next — data not ready");
@@ -172,11 +176,11 @@ function Home() {
     const cards = fiszki[currentGroup].fiszki;
     console.log(currentFiszka)
     const currentIdx = currentFiszka - 1;
-    if (currentIdx + 2 < cards.length) {
+    if (currentIdx + 1 < cards.length) {
       setFiszka(currentFiszka + 1);
       flip();
       setFlipped(true);
-      setWord(fiszki[currentGroup].fiszki[currentFiszka+1].slowo);
+     
     } else {
       alert("koniec fiszek w tej grupie");
     }
@@ -187,7 +191,7 @@ function Home() {
 
   setGroup(index);
   setFiszka(0);
-  setFlipped(false);
+  setFlipped(true);
   setWord("Kliknij, żeby zacząć!");
 
   const firstCard = fiszki[index].fiszki?.[0];
