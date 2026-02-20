@@ -34,7 +34,7 @@ fetch("bla bla bla", {
       console.error("Fetch error:", err);
   });
 */
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { createBrowserRouter, RouterProvider, Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import Login from "./Login";
@@ -63,7 +63,7 @@ const router = createBrowserRouter([
 
 function Home() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem("loggedIn"));
-  const [word, setWord] = useState("Kliknij, żeby zacząć!");
+  const [word, setWord] = useState("Wybier grupę, żeby zacząć!");
   const navigate = useNavigate();
   const [flipped, setFlipped] = useState(false);
   var [currentGroup, setGroup] = useState(0);
@@ -73,6 +73,7 @@ function Home() {
   const [isWrongHovered,   setIsWrongHovered]   = useState(false);
   const [loading, setLoading] = useState(true);
   const [remainingFiszki, setRemainingFiszki] = useState(null);
+  const [knewFiszki, setKnewFiszki] = useState(null);
   let status;
   useEffect(() => {fetch("http://localhost:8080/zestawy", {
     credentials: "include"})
@@ -99,6 +100,7 @@ function Home() {
                 console.log(data);
                 setFiszki(data);
                 setGroup(0);
+                setRemainingFiszki(data[0]);
                 setLoading(false);
                 localStorage.setItem("fiszki", JSON.stringify(data));
               });
@@ -117,6 +119,7 @@ function Home() {
         console.log(data);
         setFiszki(data);
         setGroup(0);
+        setRemainingFiszki(data[0]);
         setLoading(false);
         localStorage.setItem("fiszki", JSON.stringify(data));
       }
@@ -146,15 +149,16 @@ function Home() {
   }
 
   const increment = () => {
-    if (!fiszki || !fiszki[currentGroup] || !fiszki[currentGroup].fiszki) {
+    if (!remainingFiszki) {
       console.log("No data yet — cannot flip");
       return;
     }
     flip();
+    console.log(remainingFiszki);
     if (!flipped) {
-      setWord(fiszki[currentGroup].fiszki[currentFiszka].slowo || "Brak słowa");
+      setWord(remainingFiszki[currentFiszka].slowo || "Brak słowa");
     } else {
-      const def = fiszki[currentGroup].fiszki[currentFiszka];
+      const def = remainingFiszki[currentFiszka];
       setWord(
         `Definicja: ${def.definicja || "??"}` +
         `\n\nPrzykładowe zdanie: ${def.zdanie || "-"}`
@@ -164,25 +168,36 @@ function Home() {
   };
   useEffect(()=>{
     if(!loading){
-     setWord(fiszki[currentGroup].fiszki[currentFiszka].slowo);
+     setWord(remainingFiszki[currentFiszka].slowo);
     }
-  },[currentFiszka]) 
+  },[currentFiszka]) ;
+
   const nextFiszka = (knew) =>{
-  if (!fiszki || !fiszki[currentGroup] || !fiszki[currentGroup].fiszki) {
+  if (!remainingFiszki) {
       console.log("Cannot go next — data not ready");
       return;
     }
-
-    const cards = fiszki[currentGroup].fiszki;
+    console.log(knew);
+    const cards = remainingFiszki;
+    if(knew){
+      let array = remainingFiszki;
+      array[currentFiszka] = null;
+      setRemainingFiszki(array);
+      console.log("usuwam");
+    }
     console.log(currentFiszka)
-    const currentIdx = currentFiszka - 1;
+    var currentIdx = currentFiszka;
+    while(remainingFiszki[currentIdx] == null){
+      currentIdx++
+    }
     if (currentIdx + 1 < cards.length) {
-      setFiszka(currentFiszka + 1);
+        setFiszka(currentFiszka + 1);
       flip();
       setFlipped(true);
      
     } else {
       alert("koniec fiszek w tej grupie");
+      currentFiszka(0);
     }
   };
 
@@ -190,6 +205,7 @@ function Home() {
   if (!fiszki || !fiszki[index]) return;
 
   setGroup(index);
+  setRemainingFiszki(fiszki[index].fiszki);
   setFiszka(0);
   setFlipped(true);
   setWord("Kliknij, żeby zacząć!");
