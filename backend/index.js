@@ -42,7 +42,7 @@ connection.connect((err) => {
 });
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://doctrina-tabula-s867.vercel.app",
   credentials: true
 }));
 

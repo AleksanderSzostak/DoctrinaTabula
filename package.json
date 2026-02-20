@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@netlify/functions": "^5.1.2",
     "@netlify/neon": "^0.1.0",
     "@tailwindcss/vite": "^4.1.17",
+    "@types/express": "^5.0.6",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -25,6 +27,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.10.1",
+    "serverless-http": "^4.0.0",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
