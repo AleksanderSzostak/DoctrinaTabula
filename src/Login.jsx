@@ -18,7 +18,7 @@ export default function Login() {
             alert("Wypełnij oba pola!");
         } else {
             let status = 0;
-            fetch("http://localhost:8080/login", {
+            fetch("https://doctrina-tabula-s867.vercel.app:8080/login", {
             method: "POST",
             credentials: "include",
             headers: {

@@ -51,7 +51,7 @@ export default function Edycja() {
             return;
         }
         setShouldConfirm(false);
-        await fetch("http://localhost:8080/logout", {
+        await fetch("https://doctrina-tabula-s867.vercel.app:8080/logout", {
             method: "POST",
             credentials: "include"
         });
@@ -111,20 +111,20 @@ export default function Edycja() {
             return;
         }
         console.log(JSON.stringify(fiszkiDoZmiany))
-        const request = await fetch("http://localhost:8080/zapiszFiszki", {method: "POST", credentials: "include", headers: {
+        const request = await fetch("https://doctrina-tabula-s867.vercel.app:8080/zapiszFiszki", {method: "POST", credentials: "include", headers: {
             "Content-Type": "application/json"
         }, body: JSON.stringify(fiszkiDoZmiany, (key, value) => {
             return value === undefined ? -1 : value;
           })}); 
 
         if (request.status == 401) {
-            const request = await fetch("http://localhost:8080/refresh", {
+            const request = await fetch("https://doctrina-tabula-s867.vercel.app:8080/refresh", {
                 method: "POST",
                 credentials: "include"
               })
 
             if (request.ok) {
-                const request = await fetch("http://localhost:8080/zapiszFiszki", {method: "POST", credentials: "include", headers: {
+                const request = await fetch("https://doctrina-tabula-s867.vercel.app:8080/zapiszFiszki", {method: "POST", credentials: "include", headers: {
                     "Content-Type": "application/json"
                 }, body: JSON.stringify(fiszkiDoZmiany, (key, value) => {
                     return value === undefined ? -1 : value;

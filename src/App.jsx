@@ -10,7 +10,7 @@ fetch("bla bla bla", {
   })
   .then(data => {
       if (status === 401) {
-          fetch("http://localhost:8080/refresh", {
+          fetch("https://doctrina-tabula-s867.vercel.app:8080/refresh", {
             method: "POST",
             credentials: "include"
           })
@@ -74,7 +74,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [remainingFiszki, setRemainingFiszki] = useState(null);
   let status;
-  useEffect(() => {fetch("http://localhost:8080/zestawy", {
+  useEffect(() => {fetch("https://doctrina-tabula-s867.vercel.app:8080/zestawy", {
     credentials: "include"})
     .then(res => {
       status = res.status;
@@ -83,13 +83,13 @@ function Home() {
     .then(data => {
       if (status === 401) {
         console.log("Refreshing token")
-        fetch("http://localhost:8080/refresh", {
+        fetch("https://doctrina-tabula-s867.vercel.app:8080/refresh", {
           method: "POST",
           credentials: "include"
         })
         .then(res => {
           if (res.status === 200) {
-            fetch("http://localhost:8080/zestawy", {
+            fetch("https://doctrina-tabula-s867.vercel.app:8080/zestawy", {
               credentials: "include"})
               .then(res => {
                 status = res.status;
@@ -127,7 +127,7 @@ function Home() {
   
 
   async function wyloguj() {
-    await fetch("http://localhost:8080/logout", {
+    await fetch("https://doctrina-tabula-s867.vercel.app:8080/logout", {
       method: "POST",
       credentials: "include"
     });

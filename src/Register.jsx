@@ -25,7 +25,7 @@ export default function Register() {
             return;
         }
 
-        const res = await fetch("http://localhost:8080/sprawdzUzytkownika/" + nazwaTrim);
+        const res = await fetch("https://doctrina-tabula-s867.vercel.app:8080/sprawdzUzytkownika/" + nazwaTrim);
         const data = await res.json();
         if (data.exists) {
             alert("Użytkownik o takiej nazwie już istnieje");
@@ -35,7 +35,7 @@ export default function Register() {
 
 
         let status = 0;
-        fetch("http://localhost:8080/register", {
+        fetch("https://doctrina-tabula-s867.vercel.app:8080/register", {
         method: "POST",
         credentials: "include",
         headers: {
