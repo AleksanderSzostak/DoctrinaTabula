@@ -10,7 +10,7 @@ fetch("bla bla bla", {
   })
   .then(data => {
       if (status === 401) {
-          fetch("https://doctrina-tabula-s867.vercel.app:8080/refresh", {
+          fetch(baseUrl + "/refresh", {
             method: "POST",
             credentials: "include"
           })
@@ -42,6 +42,7 @@ import Register from "./Register";
 import Edycja from "./Edycja";
 import './App.css'
 
+export const baseUrl = "/api"
 const router = createBrowserRouter([
   {
     path: "/",
@@ -74,7 +75,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [remainingFiszki, setRemainingFiszki] = useState(null);
   let status;
-  useEffect(() => {fetch("https://doctrina-tabula-s867.vercel.app:8080/zestawy", {
+  useEffect(() => {fetch(baseUrl + "/zestawy", {
     credentials: "include"})
     .then(res => {
       status = res.status;
@@ -83,13 +84,13 @@ function Home() {
     .then(data => {
       if (status === 401) {
         console.log("Refreshing token")
-        fetch("https://doctrina-tabula-s867.vercel.app:8080/refresh", {
+        fetch(baseUrl + "/refresh", {
           method: "POST",
           credentials: "include"
         })
         .then(res => {
           if (res.status === 200) {
-            fetch("https://doctrina-tabula-s867.vercel.app:8080/zestawy", {
+            fetch(baseUrl + "/zestawy", {
               credentials: "include"})
               .then(res => {
                 status = res.status;
@@ -127,7 +128,7 @@ function Home() {
   
 
   async function wyloguj() {
-    await fetch("https://doctrina-tabula-s867.vercel.app:8080/logout", {
+    await fetch(baseUrl + "/logout", {
       method: "POST",
       credentials: "include"
     });

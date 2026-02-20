@@ -35,8 +35,7 @@ export default function login(req, res) {
       if (err) {
         throw err;
       }
-        console.log(id);
-        console.log(process.env.JWT_SECRET)
+
         const token = jwt.sign(
           { userId: id },
           process.env.JWT_SECRET,

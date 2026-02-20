@@ -1,0 +1,11 @@
+
+services:
+  app:
+    build: .
+    container_name: doctrina-tabula
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=0259ffd6f26cad85abc091d3109db9f1f8d010701b083a498dae3143f2ff3e6a919d6a261d9488623e5dfc9c90f493ec1477bb7b5edc80cd356665f2997f0c18
+    restart: unless-stopped

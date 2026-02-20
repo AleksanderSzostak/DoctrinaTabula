@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
+import { baseUrl } from './App';
 
 
 export default function Register() {
@@ -25,7 +26,7 @@ export default function Register() {
             return;
         }
 
-        const res = await fetch("https://doctrina-tabula-s867.vercel.app:8080/sprawdzUzytkownika/" + nazwaTrim);
+        const res = await fetch(baseUrl + "/sprawdzUzytkownika/" + nazwaTrim);
         const data = await res.json();
         if (data.exists) {
             alert("Użytkownik o takiej nazwie już istnieje");
@@ -35,7 +36,7 @@ export default function Register() {
 
 
         let status = 0;
-        fetch("https://doctrina-tabula-s867.vercel.app:8080/register", {
+        fetch(baseUrl + "/register", {
         method: "POST",
         credentials: "include",
         headers: {

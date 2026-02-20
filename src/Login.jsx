@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
+import { baseUrl } from './App';
 
 
 export default function Login() {
@@ -18,7 +19,7 @@ export default function Login() {
             alert("Wypełnij oba pola!");
         } else {
             let status = 0;
-            fetch("https://doctrina-tabula-s867.vercel.app:8080/login", {
+            fetch(baseUrl + "/login", {
             method: "POST",
             credentials: "include",
             headers: {

@@ -15,11 +15,12 @@ export default function refresh(req, res) {
 
         connection.query("SELECT tokenVersion from users WHERE id = ?", [payload.userId], async (err, results) => {
             if (err) {throw err}
-            if (results.lenght != 1) {
+            if (results.length != 1) {
                 return res.status(401).send({
                     message: "Unauthorized"
                 });
             }
+
             if (results[0].tokenVersion != payload.tokenVersion) {
                 console.log("Wrong token version")
                 return res.status(401).send({

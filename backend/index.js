@@ -24,6 +24,11 @@ import refresh from "./refresh.js";
 import register from "./register.js";
 import jwt from "jsonwebtoken";
 import zapiszFiszki from "./zapiszFiszki.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = 8080;
@@ -42,20 +47,20 @@ connection.connect((err) => {
 });
 
 app.use(cors({
-  origin: "https://doctrina-tabula-s867.vercel.app",
+  origin: "http://localhost:5173",
   credentials: true
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.post("/login", login);
+app.post("/api/login", login);
 
-app.post("/register", register);
+app.post("/api/register", register);
 
-app.post("/refresh", refresh);
+app.post("/api/refresh", refresh);
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
   const token = req.cookies.refresh;
 
   if (token) {
@@ -87,7 +92,7 @@ app.post("/logout", (req, res) => {
 
 
 
-app.get("/sprawdzUzytkownika/:nazwa", (req, res) => {
+app.get("/api/sprawdzUzytkownika/:nazwa", (req, res) => {
   connection.query("SELECT id FROM users WHERE nazwa = ?", [req.params.nazwa], async (err, results) => {
     if (err) throw err;
 
@@ -103,11 +108,11 @@ app.get("/sprawdzUzytkownika/:nazwa", (req, res) => {
   })
 });
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
-app.post('/zapiszFiszki', zapiszFiszki)
+app.post('/api/zapiszFiszki', zapiszFiszki)
 
 export function verifyUser(req) {
   const token = req.cookies.access;
@@ -126,7 +131,7 @@ export function verifyUser(req) {
   }
 }
 
-app.get('/zestawy', (req, res) => {
+app.get('/api/zestawy', (req, res) => {
  
   function queryAsync(sql) {
     return new Promise((resolve, reject) => {
@@ -176,7 +181,7 @@ app.get('/zestawy', (req, res) => {
   });
 });
 
-app.get('/fiszki',(req,res)=>{
+app.get('/api/fiszki',(req,res)=>{
   let id = verifyUser(req);
   if (!id) {
     return res.status(401).send({
@@ -190,3 +195,8 @@ app.get('/fiszki',(req,res)=>{
     })
 });
  
+app.use(express.static(path.join(__dirname, "../dist")));
+
+app.get("/*all", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/index.html"));
+});
