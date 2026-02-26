@@ -36,7 +36,7 @@ export default function refresh(req, res) {
 
             res.status(200).cookie("access", newToken, {
                 httpOnly: true,
-                secure: false,
+                secure: true,
                 sameSite: true,
                 maxAge: 15 * 60 * 1000
             }).json({ success: true });

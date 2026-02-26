@@ -52,13 +52,13 @@ export default function login(req, res) {
         res.status(200)
         .cookie("access", token, {
           httpOnly: true,
-          secure: false,
+          secure: true,
           sameSite: true,
           maxAge: 15 * 60 * 1000
         })
         .cookie("refresh", refreshToken, {
           httpOnly: true,
-          secure: false,
+          secure: true,
           sameSite: true,
           maxAge: 30 * 24 * 60 * 60 * 1000
         }).json({ success: true });

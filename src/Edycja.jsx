@@ -52,12 +52,13 @@ export default function Edycja() {
             return;
         }
         setShouldConfirm(false);
-        await fetch(baseUrl + "logout", {
+        await fetch(baseUrl + "/logout", {
             method: "POST",
             credentials: "include"
         });
 
         localStorage.clear();
+        fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []}
         navigate("/");
     }
 
@@ -132,18 +133,21 @@ export default function Edycja() {
                   })}); 
 
                 if (request.ok) {
+                    fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []}
                     navigate("/");
                 } else {
                     alert("Błąd serwera, fiszki nie zostały zapisane, poczekaj chwilę i spróbuj ponownie.");
                 }
             } else if (request.status === 401) {
                 localStorage.clear();
-                navigate("/login")
+                fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []}
+                navigate("/login");
             } else {
                 alert("Błąd serwera, fiszki nie zostały zapisane, poczekaj chwilę i spróbuj ponownie.");
             }
         } 
         else if (request.ok) {
+                fiszkiDoZmiany = {dodaneGrupy: [], zmienioneGrupy: [], usunieteGrupy: [], dodaneFiszki: [], zmienioneFiszki: [], usunieteFiszki: []}
                 navigate("/");
             } else {
                 alert("Błąd serwera, fiszki nie zostały zapisane, poczekaj chwilę i spróbuj ponownie.");

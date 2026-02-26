@@ -71,13 +71,13 @@ app.post("/api/logout", (req, res) => {
         if (err) {throw err}
         res.clearCookie("access", {
           httpOnly: true,
-          secure: false,
+          secure: true,
           sameSite: "strict"
         });
       
         res.clearCookie("refresh", {
           httpOnly: true,
-          secure: false,
+          secure: true,
           sameSite: "strict",
           path: "/"
         });
